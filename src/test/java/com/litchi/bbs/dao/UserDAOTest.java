@@ -14,8 +14,6 @@ import java.util.Arrays;
  * @author cuiwj
  * @date 2020/3/6
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@SpringApplicationConfiguration(classes = BbsApplication.class)
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserDAOTest {
