@@ -1,6 +1,7 @@
 package com.litchi.bbs.controller;
 
 import com.litchi.bbs.entity.DiscussPost;
+import com.litchi.bbs.entity.Page;
 import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.UserService;
@@ -26,8 +27,10 @@ public class HomeController {
     private UserService userService;
 
     @RequestMapping(path = {"/", "/index"})
-    public String index(Model model) {
-        List<DiscussPost> list = discussPostService.selectDiscussPosts(0, 0, 10);
+    public String index(Model model, Page page) {
+        page.setRows(discussPostService.getDiscussRows(0));
+        page.setPath("/index");
+        List<DiscussPost> list = discussPostService.selectDiscussPosts(0, page.getOffset(), page.getLimit());
         if (null != list) {
             List<Map<String, Object>> discussPosts = new ArrayList<>();
             for (DiscussPost discussPost : list) {

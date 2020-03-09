@@ -19,4 +19,8 @@ public class DiscussPostService {
     public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit) {
         return discussPostDAO.selectDiscussPosts(userId, offset, limit);
     }
+
+    public int getDiscussRows(int userId) {
+        return discussPostDAO.getDiscussPostRows(userId);
+    }
 }
