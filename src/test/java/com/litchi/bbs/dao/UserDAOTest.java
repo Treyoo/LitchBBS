@@ -1,6 +1,7 @@
 package com.litchi.bbs.dao;
 
 import com.litchi.bbs.entity.User;
+import com.litchi.bbs.util.LitchiUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,12 +22,12 @@ public class UserDAOTest {
     UserDAO userDAO;
 
     @Test
-    public void test() {
+    public void testAddUser() {
         User user = new User();
-        String username = "TestMyBatis";
+        String username = "TestMyBatis+" + LitchiUtil.genRandomString().substring(0, 2);
         user.setUsername(username);
         userDAO.addUser(user);
+        Assert.assertNotEquals(0, user.getId());//测试id自动回填
         Assert.assertNotNull(userDAO.selectByName(username));
-
     }
 }
