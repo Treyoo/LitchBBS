@@ -1,5 +1,6 @@
 package com.litchi.bbs.service;
 
+import com.litchi.bbs.dao.LoginTokenDAO;
 import com.litchi.bbs.dao.UserDAO;
 import com.litchi.bbs.entity.LoginToken;
 import com.litchi.bbs.entity.User;
@@ -26,6 +27,8 @@ public class UserService {
     private MailService mailService;
     @Autowired
     private TemplateEngine templateEngine;
+    @Autowired
+    private LoginTokenDAO loginTokenDAO;
     @Value("${bbs.path.domain}")
     private String domain;
 
@@ -94,6 +97,37 @@ public class UserService {
         return ActivationStatus.INACTIVATED;
 }
 
+    public Map<String, Object> login(String username, String password) {
+        Map<String, Object> map = new HashMap<>(2);
+        //检测用户名密码合法性
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "用户名不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空");
+            return map;
+        }
+        User user = userDAO.selectByName(username);
+        if (user == null) {
+            map.put("usernameMsg", "用户名不存在");
+            return map;
+        }
+
+        //校验密码
+        if(!user.getPassword().equals(LitchiUtil.MD5(password+user.getSalt()))){
+            map.put("passwordMsg","密码错误");
+            return map;
+        }
+        //生成token返回客户端
+        map.put("token", genToken(user));
+        return map;
+    }
+
+    public void logout(String token){
+        loginTokenDAO.updateStatus(token,1);
+    }
+
     /**
      * 生成token
      *
@@ -108,7 +142,7 @@ public class UserService {
         Date date = new Date();
         date.setTime(date.getTime() + 1000 * 3600 * 24 * 7);//设置24*7小时有效期
         token.setExpired(date);
-//        loginTokenDAO.addToken(token);
+        loginTokenDAO.addToken(token);
         return token.getToken();
     }
 }

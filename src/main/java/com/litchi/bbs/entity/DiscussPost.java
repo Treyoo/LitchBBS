@@ -13,6 +13,9 @@ public class DiscussPost {
     private String content;
     private int type;
     private int status;
+    private Date createdDate;
+    private int commentCount;
+    private double score;
 
     @Override
     public String toString() {
@@ -23,7 +26,7 @@ public class DiscussPost {
                 ", content='" + content + '\'' +
                 ", type=" + type +
                 ", status=" + status +
-                ", createTime=" + createTime +
+                ", createdDate=" + createdDate +
                 ", commentCount=" + commentCount +
                 ", score=" + score +
                 '}';
@@ -77,12 +80,12 @@ public class DiscussPost {
         this.status = status;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
     public int getCommentCount() {
@@ -101,7 +104,4 @@ public class DiscussPost {
         this.score = score;
     }
 
-    private Date createTime;
-    private int commentCount;
-    private double score;
 }
