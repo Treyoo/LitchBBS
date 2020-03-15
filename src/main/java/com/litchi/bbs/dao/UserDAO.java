@@ -34,6 +34,9 @@ public interface UserDAO {
     @Update({"update", TABLE_NAME, "set status=#{status} where id=#{id}"})
     void updateStatus(User user);
 
+    @Update({"update", TABLE_NAME, "set header_url=#{headerUrl} where id=#{userId}"})
+    void updateHeaderUrl(int userId, String headerUrl);
+
     @Delete({"delete from", TABLE_NAME, "where id=#{id}"})
     void deleteById(int id);
 }

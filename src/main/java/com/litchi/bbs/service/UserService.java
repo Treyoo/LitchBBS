@@ -128,6 +128,10 @@ public class UserService {
         loginTokenDAO.updateStatus(token,1);
     }
 
+    public void updateHeaderUrl(int userId,String headerUrl){
+        userDAO.updateHeaderUrl(userId,headerUrl);
+    }
+
     /**
      * 生成token
      *
