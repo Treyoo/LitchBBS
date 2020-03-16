@@ -62,7 +62,7 @@ public class DiscussPostControllerTests  {
         ).andExpect(status().isOk())    //返回的状态是200
                 .andDo(print())         //打印出请求和相应的内容
                 .andReturn().getResponse().getContentAsString();   //将相应的数据转换为字符串
-        System.out.println();
+        System.out.println("服务器返回:" + responseString);
     }
 
 

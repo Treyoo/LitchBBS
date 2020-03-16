@@ -32,24 +32,18 @@ public class LoginRequiredInterceptor implements HandlerInterceptor {
                 //异步请求
                 httpServletResponse.setCharacterEncoding("UTF-8");
                 httpServletResponse.setContentType("application/json;charset=utf-8");
-                PrintWriter out = null;
-                try {
-                    out = httpServletResponse.getWriter();
+                try (PrintWriter out = httpServletResponse.getWriter()) {
                     out.append(LitchiUtil.getJSONString(999, "请先登录"));
                     out.flush();
                 } catch (IOException e) {
                     logger.error("向response写入数据失败" + e.getMessage());
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
                 }
             } else {
                 //同步请求
                 if ("GET".equals(httpServletRequest.getMethod())) {
-                    httpServletResponse.sendRedirect("/reglogin?next=" + httpServletRequest.getRequestURI());
+                    httpServletResponse.sendRedirect("/login_page?next=" + httpServletRequest.getRequestURI());
                 } else {
-                    httpServletResponse.sendRedirect("/reglogin");
+                    httpServletResponse.sendRedirect("/login_page");
                 }
             }
             return false;

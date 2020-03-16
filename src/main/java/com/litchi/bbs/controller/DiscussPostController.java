@@ -1,8 +1,7 @@
 package com.litchi.bbs.controller;
 
-import com.litchi.bbs.entity.DiscussPost;
-import com.litchi.bbs.entity.HostHolder;
-import com.litchi.bbs.entity.User;
+import com.litchi.bbs.entity.*;
+import com.litchi.bbs.service.CommentService;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
@@ -13,10 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author cuiwj
@@ -32,6 +28,8 @@ public class DiscussPostController {
     private HostHolder hostHolder;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CommentService commentService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -63,9 +61,14 @@ public class DiscussPostController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String detail(@PathVariable("id") int id, Model model) {
+    public String detail(@PathVariable("id") int id, Model model, Page page) {
         try {
             DiscussPost post = discussPostService.selectByid(id);
+            // 评论分页信息
+            page.setLimit(5);
+            page.setPath("/discuss/" + id);
+            page.setRows(post.getCommentCount());
+
             model.addAttribute("post", post);
             model.addAttribute("user", userService.selectUserById(post.getUserId()));
             //获取follower
@@ -80,24 +83,25 @@ public class DiscussPostController {
                     getUserInfoByIds(followService.getFollowers(EntityType.QUESTION, id, 10)));*/
 
             //获取评论
-            /*
-            List<Comment> comments = commentService.selectByEntity(EntityType.QUESTION, id, 0, 10);
-            List<ViewObject> vos = new ArrayList<>();
+            List<Comment> comments = commentService.selectByEntity(EntityType.DISCUSS_POST,
+                    id, page.getOffset(), page.getLimit());
+            List<Map<String, Object>> vos = new ArrayList<>();
             for (Comment comment : comments) {
-                User user = userService.selectById(comment.getUserId());
-                ViewObject vo = new ViewObject();
+                User user = userService.selectUserById(comment.getUserId());
+                Map<String, Object> vo = new HashMap<>();
                 vo.put("comment", comment);
                 vo.put("user", user);
-                User curUser = hostHolder.get();
-                if (curUser == null) {
+                /*User loginUser = hostHolder.get();
+                if (loginUser == null) {
                     vo.put("liked", 0);
                 } else {
-                    vo.put("liked", likeService.getStatus(curUser.getId(), EntityType.COMMENT, comment.getId()));
+                    vo.put("liked", likeService.getStatus(loginUser.getId(), EntityType.COMMENT, comment.getId()));
                 }
                 vo.put("likeCount", likeService.getLikeCount(EntityType.COMMENT, comment.getId()));
+                 */
                 vos.add(vo);
             }
-            model.addAttribute("comments", vos);*/
+            model.addAttribute("comments", vos);
 
         } catch (Exception e) {
             logger.error("获取问题详情失败" + e.getMessage());
