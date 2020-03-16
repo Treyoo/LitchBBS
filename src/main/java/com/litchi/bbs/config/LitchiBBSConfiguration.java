@@ -26,7 +26,7 @@ public class LitchiBBSConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(loginRequiredInterceptor)
                 .addPathPatterns("/user/*")
                 .addPathPatterns("/*like")
-                .addPathPatterns("/comment/add")
+                .addPathPatterns("/comment/add/*")
                 .addPathPatterns("/*follow*");
     }
 }

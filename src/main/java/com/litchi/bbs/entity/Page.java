@@ -62,7 +62,7 @@ public class Page {
      * @return 总页数
      */
     public int getTotal() {
-        return rows / limit % 2 == 0 ? rows / limit : rows / limit + 1;
+        return rows % limit == 0 ? rows / limit : rows / limit + 1;
     }
 
     /**

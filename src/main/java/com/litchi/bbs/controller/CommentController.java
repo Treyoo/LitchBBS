@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,16 +31,20 @@ public class CommentController {
 //    @Autowired
 //    EventProducer eventProducer;
 
-    @RequestMapping(path = "/add", method = RequestMethod.POST)
-    public String addComment(@RequestParam("postId") int postId,
-                             @RequestParam("content") String content) {
+    @RequestMapping(path = "/add/{postId}", method = RequestMethod.POST)
+    public String addComment(@PathVariable("postId") int postId,
+                             @RequestParam("entityType") int entityType,
+                             @RequestParam("entityId") int entityId,
+                             @RequestParam("content") String content,
+                             @RequestParam(value = "targetId", defaultValue = "0") int targetId) {
         try {
             Comment comment = new Comment();
             comment.setContent(content);
             comment.setUserId(hostHolder.get().getId());
             comment.setCreatedTime(new Date());
-            comment.setEntityType(EntityType.DISCUSS_POST);
-            comment.setEntityId(postId);
+            comment.setEntityType(entityType);
+            comment.setEntityId(entityId);
+            comment.setTargetId(targetId);
             comment.setStatus(0);
             commentService.addComment(comment);
             //发出事件

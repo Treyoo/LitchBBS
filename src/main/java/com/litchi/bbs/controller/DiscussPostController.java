@@ -68,6 +68,7 @@ public class DiscussPostController {
             page.setLimit(5);
             page.setPath("/discuss/" + id);
             page.setRows(post.getCommentCount());
+            logger.debug(String.format("共分%d页",page.getTotal()));
 
             model.addAttribute("post", post);
             model.addAttribute("user", userService.selectUserById(post.getUserId()));
@@ -99,6 +100,23 @@ public class DiscussPostController {
                 }
                 vo.put("likeCount", likeService.getLikeCount(EntityType.COMMENT, comment.getId()));
                  */
+                // 获取回复(评论的评论)
+                List<Comment> replies = commentService.selectByEntity(EntityType.COMMENT,
+                        comment.getId(), 0, Integer.MAX_VALUE);
+                List<Map<String, Object>> replyVos = null;
+                if (replies != null) {
+                    replyVos = new ArrayList<>();
+                    for (Comment reply : replies) {
+                        User target = userService.selectUserById(reply.getTargetId());
+                        Map<String, Object> replyVo = new HashMap<>();
+                        replyVo.put("reply", reply);
+                        replyVo.put("user", userService.selectUserById(reply.getUserId()));
+                        replyVo.put("target", target);
+                        replyVos.add(replyVo);
+                    }
+                }
+                vo.put("replies", replyVos);
+                vo.put("replyCount", commentService.getCommentCountByEntity(EntityType.COMMENT, comment.getId()));
                 vos.add(vo);
             }
             model.addAttribute("comments", vos);
