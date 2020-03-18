@@ -69,6 +69,7 @@ public class MessageController {
             int localUserId = hostHolder.get().getId();
             page.setPath("/msg/detail/"+conversationId);
             page.setRows(messageService.getConversationTotalLetterCount(localUserId,conversationId));
+            page.setLimit(3);
             List<Message> conversation = messageService.getConversationDetail(conversationId,
                     page.getOffset(), page.getLimit());
             List<Map<String,Object>> vos = new ArrayList<>();
@@ -79,13 +80,23 @@ public class MessageController {
                 vos.add(vo);
             }
             model.addAttribute("messages", vos);
+            model.addAttribute("target",getLetterTarget(conversationId));
         } catch (Exception e) {
             logger.error("获取会话详情失败" + e.getMessage());
             e.printStackTrace();
         }
         return "site/letter-detail";
     }
-
+    private User getLetterTarget(String conversationId){
+        String[] ids = conversationId.split("_");
+        int id0 = Integer.parseInt(ids[0]);
+        int id1 = Integer.parseInt(ids[1]);
+        if(hostHolder.get().getId() == id0){
+            return userService.selectUserById(id1);
+        }else{
+            return userService.selectUserById(id0);
+        }
+    }
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String conversationList(Model model, Page page) {
         try {
