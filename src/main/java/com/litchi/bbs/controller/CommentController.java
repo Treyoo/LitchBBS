@@ -1,7 +1,6 @@
 package com.litchi.bbs.controller;
 
 import com.litchi.bbs.entity.Comment;
-import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.service.CommentService;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class CommentController {
             Comment comment = new Comment();
             comment.setContent(content);
             comment.setUserId(hostHolder.get().getId());
-            comment.setCreatedTime(new Date());
+            comment.setCreateTime(new Date());
             comment.setEntityType(entityType);
             comment.setEntityId(entityId);
             comment.setTargetId(targetId);

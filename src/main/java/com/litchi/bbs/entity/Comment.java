@@ -12,7 +12,7 @@ public class Comment {
     private int entityType;
     private int userId;
     private String content;
-    private Date createdTime;
+    private Date createTime;
     private int status;
     private int targetId;
 
@@ -64,12 +64,12 @@ public class Comment {
         this.content = content;
     }
 
-    public Date getCreatedTime() {
-        return createdTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatedTime(Date createdTime) {
-        this.createdTime = createdTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public int getStatus() {

@@ -36,7 +36,7 @@ public class DiscussPostDAOTest {
         DiscussPost discussPost = new DiscussPost();
         discussPost.setTitle("Test add discuss post");
         discussPost.setContent("test!");
-        discussPost.setCreatedDate(new Date());
+        discussPost.setCreateTime(new Date());
         discussPost.setScore(88.0);
         discussPost.setType(1);
         discussPost.setType(2);

@@ -39,7 +39,7 @@ public class DiscussPostController {
             DiscussPost discussPost = new DiscussPost();
             discussPost.setTitle(title);
             discussPost.setContent(content);
-            discussPost.setCreatedDate(new Date());
+            discussPost.setCreateTime(new Date());
             discussPost.setCommentCount(0);
             if (hostHolder.get() == null) {
                 return LitchiUtil.getJSONString(999);
