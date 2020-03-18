@@ -27,6 +27,7 @@ public class LitchiBBSConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/user/*")
                 .addPathPatterns("/*like")
                 .addPathPatterns("/comment/add/*")
-                .addPathPatterns("/*follow*");
+                .addPathPatterns("/*follow*")
+                .addPathPatterns("/msg/*");
     }
 }
