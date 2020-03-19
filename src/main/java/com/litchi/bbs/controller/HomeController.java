@@ -1,5 +1,6 @@
 package com.litchi.bbs.controller;
 
+import com.litchi.bbs.annotation.MyAnnotation;
 import com.litchi.bbs.entity.DiscussPost;
 import com.litchi.bbs.entity.Page;
 import com.litchi.bbs.entity.User;
@@ -27,6 +28,7 @@ public class HomeController {
     private UserService userService;
 
     @RequestMapping(path = {"/", "/index"})
+    @MyAnnotation
     public String index(Model model, Page page) {
         page.setRows(discussPostService.getDiscussRows(0));
         page.setPath("/index");
