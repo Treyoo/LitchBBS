@@ -96,4 +96,10 @@ public class UserController {
             logger.error("读取头像失败: " + e.getMessage());
         }
     }
+
+    @RequestMapping(value = "/profile/{userId}",method=RequestMethod.GET)
+    public String getProfile(Model model, @PathVariable("userId") int userId){
+        model.addAttribute("user",userService.selectUserById(userId));
+        return "site/profile";
+    }
 }
