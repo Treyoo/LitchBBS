@@ -32,7 +32,7 @@ public class MessageController {
     @Autowired
     HostHolder hostHolder;
 
-    @RequestMapping(value = "/msg/addMessage", method = RequestMethod.POST)
+    @RequestMapping(value = "/addMessage", method = RequestMethod.POST)
     @ResponseBody
     public String addMessage(@RequestParam("toName") String toName,
                              @RequestParam("content") String content) {
@@ -99,29 +99,25 @@ public class MessageController {
     }
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String conversationList(Model model, Page page) {
-        try {
-            int localUserId = hostHolder.get().getId();
-            page.setPath("/msg/list");
-            page.setRows(messageService.getConversationCount(localUserId));
-            page.setLimit(3);
-            List<Message> conversationList = messageService.getConversationList(
-                    localUserId, page.getOffset(), page.getLimit());
-            List<Map<String, Object>> vos = new ArrayList<>();
-            for (Message msg : conversationList) {
-                Map<String, Object> vo = new HashMap<>();
-                vo.put("message", msg);
-                vo.put("unread", messageService.getConversationUnReadLetterCount(localUserId, msg.getConversationId()));
-                vo.put("total", messageService.getConversationTotalLetterCount(localUserId, msg.getConversationId()));
-                int targetId = msg.getFromId() == localUserId ? msg.getToId() : msg.getFromId();
-                User targetUser = userService.selectUserById(targetId);
-                vo.put("user", targetUser);
-                vos.add(vo);
-            }
-            model.addAttribute("totalUnread",messageService.getUnReadLetterCount(localUserId));
-            model.addAttribute("conversations", vos);
-        } catch (Exception e) {
-            logger.error("获取会话列表失败" + e.getMessage());
+        int localUserId = hostHolder.get().getId();
+        page.setPath("/msg/list");
+        page.setRows(messageService.getConversationCount(localUserId));
+        page.setLimit(3);
+        List<Message> conversationList = messageService.getConversationList(
+                localUserId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> vos = new ArrayList<>();
+        for (Message msg : conversationList) {
+            Map<String, Object> vo = new HashMap<>();
+            vo.put("message", msg);
+            vo.put("unread", messageService.getConversationUnReadLetterCount(localUserId, msg.getConversationId()));
+            vo.put("total", messageService.getConversationTotalLetterCount(localUserId, msg.getConversationId()));
+            int targetId = msg.getFromId() == localUserId ? msg.getToId() : msg.getFromId();
+            User targetUser = userService.selectUserById(targetId);
+            vo.put("user", targetUser);
+            vos.add(vo);
         }
+        model.addAttribute("totalUnread",messageService.getUnReadLetterCount(localUserId));
+        model.addAttribute("conversations", vos);
         return "site/letter";
     }
 
