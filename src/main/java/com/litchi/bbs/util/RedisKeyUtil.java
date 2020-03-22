@@ -10,6 +10,8 @@ public class RedisKeyUtil {
     private static final String SPLIT = ":";
     private static final String BIZ_LIKE = "BIZ_LIKE";
     private static final String BIZ_DISLIKE = "BIZ_DISLIKE";
+    private static final String LIKE_COUNT = "LIKE_COUNT";
+    private static final String DISLIKE_COUNT = "DISLIKE_COUNT";
     private static final String BIZ_QUESTION = "BIZ_QUESTION";
     private static final String BIZ_COMMENT = "BIZ_COMMENT";
     private static final String EVENTS = "EVENTS";
@@ -51,7 +53,14 @@ public class RedisKeyUtil {
         return BIZ_FOLLOWEE + SPLIT + String.valueOf(userId) + SPLIT + String.valueOf(entityType);
     }
 
-    public static String getTimelinetKey(int userId) {
+    public static String getTimeLinetKey(int userId) {
         return BIZ_TIMELINE + SPLIT + String.valueOf(userId);
+    }
+
+    public static String getEntityLikeCountKey(int entityType, int entityId) {
+        return LIKE_COUNT + SPLIT + entityType + SPLIT + entityId;
+    }
+    public static String getEntityDislikeCountKey(int entityType, int entityId) {
+        return DISLIKE_COUNT + SPLIT + entityType + SPLIT + entityId;
     }
 }

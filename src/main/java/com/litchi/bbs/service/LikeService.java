@@ -1,5 +1,6 @@
 package com.litchi.bbs.service;
 
+import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.RedisKeyUtil;
 import com.litchi.bbs.util.constant.LikeStatus;
@@ -23,21 +24,30 @@ public class LikeService implements LikeStatus {
      * @param userId
      * @param entityType
      * @param entityId
+     * @param entityUserId 实体拥有者id
      * @return 实体的被赞数量
      */
-    public long like(int userId, int entityType, int entityId) {
+    public long like(int userId, int entityType, int entityId, int entityUserId) {
         String likeKey = RedisKeyUtil.getBizLikeKey(entityType, entityId);
         String dislikeKey = RedisKeyUtil.getBizDislikeKey(entityType, entityId);
-        boolean liked = jedisAdapter.sismember(likeKey, String.valueOf(userId));
         try (Jedis jedis = jedisAdapter.getJedis();
              Transaction tx = jedis.multi()) {//事务管理
-            //从dislike集合移除（如果有）
-            tx.srem(dislikeKey, String.valueOf(userId));
-            //向like集合添加（赞）/移除（取消赞）
-            if (liked) { //已经赞过再点击赞就是取消赞
-                tx.srem(likeKey, String.valueOf(userId));
-            } else {
-                tx.sadd(likeKey, String.valueOf(userId));
+            switch (this.getLikeStatus(userId, entityType, entityId)) {
+                case DISLIKE://从dislike集合移除
+                    tx.srem(dislikeKey, String.valueOf(userId));
+                    //统计相应用户收到全部赞踩的数量
+                    //TODO: decr可能出现负数
+                    tx.decr(RedisKeyUtil.getEntityDislikeCountKey(EntityType.USER, entityUserId));
+                    tx.incr(RedisKeyUtil.getEntityLikeCountKey(EntityType.USER, entityUserId));
+                    break;
+                case LIKE://从like集合移除（取消赞）
+                    tx.srem(likeKey, String.valueOf(userId));
+                    tx.decr(RedisKeyUtil.getEntityLikeCountKey(EntityType.USER, entityUserId));
+                    break;
+                case NONE:
+                    tx.sadd(likeKey, String.valueOf(userId));
+                    tx.incr(RedisKeyUtil.getEntityLikeCountKey(EntityType.USER, entityUserId));
+                    break;
             }
             tx.exec();
         }
@@ -50,23 +60,32 @@ public class LikeService implements LikeStatus {
      * @param userId
      * @param entityType
      * @param entityId
+     * @param entityUserId 实体拥有者id
      * @return 实体的被赞数量
      */
-    public long dislike(int userId, int entityType, int entityId) {
+    public long dislike(int userId, int entityType, int entityId, int entityUserId) {
         String likeKey = RedisKeyUtil.getBizLikeKey(entityType, entityId);
         String dislikeKey = RedisKeyUtil.getBizDislikeKey(entityType, entityId);
-        boolean disliked = jedisAdapter.sismember(dislikeKey, String.valueOf(userId));
         try (Jedis jedis = jedisAdapter.getJedis();
              Transaction tx = jedis.multi()) {
-            //从like集合移除（如果有）
-            tx.srem(likeKey, String.valueOf(userId));
-            //向dislike集合添加（踩）/移除（取消踩）
-            //已经踩过再点击踩就是取消踩
-            if (disliked) {
-                tx.srem(dislikeKey, String.valueOf(userId));
-            } else {
-                tx.sadd(dislikeKey, String.valueOf(userId));
+            switch (this.getLikeStatus(userId, entityType, entityId)) {
+                case DISLIKE://从dislike集合移除
+                    tx.srem(dislikeKey, String.valueOf(userId));
+                    //统计相应用户收到全部踩的数量
+                    tx.decr(RedisKeyUtil.getEntityDislikeCountKey(EntityType.USER, entityUserId));
+                    break;
+                case LIKE://从like集合移除（取消赞）
+                    tx.srem(likeKey, String.valueOf(userId));
+                    //统计相应用户收到全部赞的数量
+                    tx.decr(RedisKeyUtil.getEntityLikeCountKey(EntityType.USER, entityUserId));
+                    tx.incr(RedisKeyUtil.getEntityDislikeCountKey(EntityType.USER, entityUserId));
+                    break;
+                case NONE:
+                    tx.sadd(likeKey, String.valueOf(userId));
+                    tx.incr(RedisKeyUtil.getEntityDislikeCountKey(EntityType.USER, entityUserId));
+                    break;
             }
+            tx.exec();
         }
         return jedisAdapter.scard(likeKey);
     }
@@ -90,7 +109,7 @@ public class LikeService implements LikeStatus {
      * @param entityId
      * @return 点赞返回1，点踩返回-1，无返回0
      */
-    public int getStatus(int userId, int entityType, int entityId) {
+    public int getLikeStatus(int userId, int entityType, int entityId) {
         if (jedisAdapter.sismember(RedisKeyUtil.getBizLikeKey(entityType, entityId),
                 String.valueOf(userId))) {
             return LIKE;
@@ -100,5 +119,21 @@ public class LikeService implements LikeStatus {
             return DISLIKE;
         }
         return NONE;
+    }
+
+    /**
+     * @param userId
+     * @return 用户收到全部赞的数量（帖子+评论）
+     */
+    public String getUserTotalLikedCount(int userId){
+        return jedisAdapter.get(RedisKeyUtil.getEntityLikeCountKey(EntityType.USER,userId));
+    }
+
+    /**
+     * @param userId
+     * @return 用户收到全部踩的数量（帖子+评论）
+     */
+    public String getUserTotalDislikedCount(int userId){
+        return jedisAdapter.get(RedisKeyUtil.getEntityDislikeCountKey(EntityType.USER,userId));
     }
 }

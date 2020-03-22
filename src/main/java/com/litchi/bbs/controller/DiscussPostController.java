@@ -66,6 +66,7 @@ public class DiscussPostController implements LikeStatus {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String detail(@PathVariable("id") int id, Model model, Page page) {
+        User loginUser = hostHolder.get();
         DiscussPost post = discussPostService.selectByid(id);
         // 评论分页信息
         page.setLimit(5);
@@ -75,6 +76,13 @@ public class DiscussPostController implements LikeStatus {
 
         model.addAttribute("post", post);
         model.addAttribute("user", userService.selectUserById(post.getUserId()));
+        if (loginUser == null) {
+            model.addAttribute("likeStatus", NONE);
+        } else {
+            model.addAttribute("likeStatus", likeService.getLikeStatus(loginUser.getId(),
+                    EntityType.DISCUSS_POST, id));
+        }
+        model.addAttribute("likeCount", likeService.getLikeCount(EntityType.DISCUSS_POST, id));
         //获取follower
         /*
         if (hostHolder.get() != null) {
@@ -95,11 +103,10 @@ public class DiscussPostController implements LikeStatus {
             Map<String, Object> vo = new HashMap<>();
             vo.put("comment", comment);
             vo.put("user", user);
-            User loginUser = hostHolder.get();
             if (loginUser == null) {
                 vo.put("likeStatus", NONE);
             } else {
-                vo.put("likeStatus", likeService.getStatus(loginUser.getId(), EntityType.COMMENT, comment.getId()));
+                vo.put("likeStatus", likeService.getLikeStatus(loginUser.getId(), EntityType.COMMENT, comment.getId()));
             }
             vo.put("likeCount", likeService.getLikeCount(EntityType.COMMENT, comment.getId()));
 
@@ -115,6 +122,13 @@ public class DiscussPostController implements LikeStatus {
                     replyVo.put("reply", reply);
                     replyVo.put("user", userService.selectUserById(reply.getUserId()));
                     replyVo.put("target", target);
+                    if (loginUser == null) {
+                        replyVo.put("likeStatus",NONE);
+                    } else {
+                        replyVo.put("likeStatus", likeService.getLikeStatus
+                                (loginUser.getId(), EntityType.COMMENT, reply.getId()));
+                        replyVo.put("likeCount",likeService.getLikeCount(EntityType.COMMENT,reply.getId()));
+                    }
                     replyVos.add(replyVo);
                 }
             }

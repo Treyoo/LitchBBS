@@ -251,4 +251,21 @@ public class JedisAdapter {
         }
         return null;
     }
+
+    public long incr(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.incr(key);
+        } catch (Exception e) {
+            logger.error("Jedis发生异常" + e.getMessage());
+            return -1L;
+        }
+    }
+    public long decr(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.decr(key);
+        } catch (Exception e) {
+            logger.error("Jedis发生异常" + e.getMessage());
+            return -1L;
+        }
+    }
 }

@@ -37,8 +37,9 @@ public class LikeController {
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
     public String like(@RequestParam("entityType") int entityType,
-                       @RequestParam("entityId") int entityId) {
-        long likeCount = likeService.like(hostHolder.get().getId(), entityType, entityId);
+                       @RequestParam("entityId") int entityId,
+                       @RequestParam("entityUserId") int entityUserId) {
+        long likeCount = likeService.like(hostHolder.get().getId(), entityType, entityId, entityUserId);
         if (EntityType.COMMENT == entityType) {
             Comment comment = commentService.getCommentById(entityId);
             /*eventProducer.fireEvent(new Event(EventType.LIKE)
@@ -50,16 +51,17 @@ public class LikeController {
         }
         Map<String, Object> res = new HashMap<>();
         res.put("likeCount", likeCount);
-        res.put("likeStatus", likeService.getStatus(hostHolder.get().getId(), entityType, entityId));
+        res.put("likeStatus", likeService.getLikeStatus(hostHolder.get().getId(), entityType, entityId));
         return LitchiUtil.getJSONString(0, res);
     }
 
     @RequestMapping(path = "/dislike", method = RequestMethod.POST)
     @ResponseBody
     public String dislike(@RequestParam("entityType") int entityType,
-                          @RequestParam("entityId") int entityId) {
+                          @RequestParam("entityId") int entityId,
+                          @RequestParam("entityUserId") int entityUserId) {
 
-        long likeCount = likeService.dislike(hostHolder.get().getId(), EntityType.COMMENT, entityId);
+        long likeCount = likeService.dislike(hostHolder.get().getId(), EntityType.COMMENT, entityId, entityUserId);
         return LitchiUtil.getJSONString(0, String.valueOf(likeCount));
 
     }

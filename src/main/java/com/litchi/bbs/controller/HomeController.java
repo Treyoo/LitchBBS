@@ -2,9 +2,11 @@ package com.litchi.bbs.controller;
 
 import com.litchi.bbs.annotation.MyAnnotation;
 import com.litchi.bbs.entity.DiscussPost;
+import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.Page;
 import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.DiscussPostService;
+import com.litchi.bbs.service.LikeService;
 import com.litchi.bbs.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,8 @@ public class HomeController {
     private DiscussPostService discussPostService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(path = {"/", "/index"})
     @MyAnnotation
@@ -41,6 +45,7 @@ public class HomeController {
                 Map<String, Object> map = new HashMap<>(4);
                 map.put("post", discussPost);
                 map.put("user", user);
+                map.put("likeCount",likeService.getLikeCount(EntityType.DISCUSS_POST,discussPost.getId()));
                 discussPosts.add(map);
             }
             model.addAttribute("discussPosts", discussPosts);
