@@ -1,6 +1,8 @@
 package com.litchi.bbs.controller;
 
+import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.HostHolder;
+import com.litchi.bbs.service.FollowService;
 import com.litchi.bbs.service.LikeService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
@@ -42,6 +44,8 @@ public class UserController {
     UserService userService;
     @Autowired
     LikeService likeService;
+    @Autowired
+    FollowService followService;
 
     @RequestMapping("/setting")
     public String getSettingPage() {
@@ -104,6 +108,9 @@ public class UserController {
     public String getProfile(Model model, @PathVariable("userId") int userId){
         model.addAttribute("user",userService.selectUserById(userId));
         model.addAttribute("totalLikedCount",likeService.getUserTotalLikedCount(userId));
+        model.addAttribute("isFollower",followService.isFollower(
+                hostHolder.get().getId(), EntityType.USER,userId));
+        model.addAttribute("followerCount",followService.getFollowerCount(EntityType.USER,userId));
         return "site/profile";
     }
 }
