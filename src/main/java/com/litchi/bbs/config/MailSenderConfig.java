@@ -48,6 +48,7 @@ public class MailSenderConfig {
         Properties javaMailProperties = new Properties();
         javaMailProperties.put("mail.smtp.ssl.enable", true);
         mailSender.setJavaMailProperties(javaMailProperties);
+        log.info("初始化MailSender成功");
         return mailSender;
     }
 }

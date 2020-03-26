@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,9 @@ public class UserService {
         User user = getUserCache(userId);//从redis缓存获取提升效率
         if (user == null) {
             user = userDAO.selectById(userId);
-            initUserCache(user);
+            if (user != null) {
+                initUserCache(user);
+            }
         }
         return user;
     }
@@ -175,10 +178,9 @@ public class UserService {
     }
 
     //缓存用户
-    private void initUserCache(User user) {
+    private void initUserCache(@NotNull User user) {
         String redisKey = RedisKeyUtil.getUserKey(user.getId());
-        jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(user),1800);
-
+        jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(user), 1800);
     }
 
     //从缓存获取用户
