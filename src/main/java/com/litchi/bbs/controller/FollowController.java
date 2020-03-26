@@ -97,30 +97,42 @@ public class FollowController {
     public String getFollowers(@PathVariable("id") int userId, Model model, Page page) {
         page.setLimit(3);
         page.setRows((int) followService.getFollowerCount(EntityType.USER, userId));
-        page.setPath("/user/"+userId+"/followers");
+        page.setPath("/user/" + userId + "/followers");
         User loginUser = hostHolder.get();
         List<Integer> followerIds = followService.getFollowers(EntityType.USER, userId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> vos = new ArrayList<>();
         for (int followerId : followerIds) {
-            Map<String,Object> vo = new HashMap<>();
-            vo.put("follower",userService.selectUserById(followerId));
-            vo.put("followTime",followService.getFollowTime(EntityType.USER,userId,followerId));
+            Map<String, Object> vo = new HashMap<>();
+            vo.put("follower", userService.selectUserById(followerId));
+            vo.put("followTime", followService.getFollowerTime(EntityType.USER, userId, followerId));
             vo.put("isFollower", loginUser != null
                     && followService.isFollower(loginUser.getId(), EntityType.USER, followerId));
             vos.add(vo);
         }
         model.addAttribute("followers", vos);
-        model.addAttribute("user",userService.selectUserById(userId));
+        model.addAttribute("user", userService.selectUserById(userId));
         return "site/follower";
     }
 
     @RequestMapping(path = "/user/{id}/followees")
-    public String getFollowees(@PathVariable("id") int userId, Model model) {
-        List<Integer> followeeIds = followService.getFollowees(userId, EntityType.USER, 15);
-        List<Map<String, Object>> vos = getFollowUsersInfo(hostHolder.get().getId(), followeeIds);
+    public String getFollowees(@PathVariable("id") int userId, Model model, Page page) {
+        page.setLimit(3);
+        page.setRows((int) followService.getFolloweeCount(userId, EntityType.USER));
+        page.setPath("/user/" + userId + "/followees");
+        User loginUser = hostHolder.get();
+        List<Integer> followeeIds = followService.getFollowees(userId, EntityType.USER, page.getOffset(),page.getLimit());
+        //
+        List<Map<String, Object>> vos = new ArrayList<>();
+        for (int followeeId : followeeIds) {
+            Map<String, Object> vo = new HashMap<>();
+            vo.put("followee", userService.selectUserById(followeeId));
+            vo.put("followTime", followService.getFolloweeTime(userId, EntityType.USER, followeeId));
+            vo.put("isFollower", loginUser != null
+                    && followService.isFollower(loginUser.getId(), EntityType.USER, followeeId));
+            vos.add(vo);
+        }
         model.addAttribute("followees", vos);
-        model.addAttribute("followeeCount", followService.getFolloweeCount(userId, EntityType.USER));
-        model.addAttribute("curUser", userService.selectUserById(userId));
+        model.addAttribute("user", userService.selectUserById(userId));
         return "site/followee";
     }
 

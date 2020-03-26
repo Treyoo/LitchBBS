@@ -95,7 +95,12 @@
 							</span>
 						</div>
 						<div class="text-muted mt-3 mb-5">
-							<span>关注了 <a class="text-primary" href="followee.html">5</a> 人</span>
+							<span>关注了
+								<a class="text-primary" id="followeeCount"
+								   th:href="@{|/user/${user.id}/followees|}" th:text="${followeeCount}">
+									5
+								</a> 人
+							</span>
 							<span class="ml-4">关注者
 								<a class="text-primary" id="followerCount"
 								   th:href="@{|/user/${user.id}/followers|}" th:text="${followerCount}">

@@ -104,13 +104,14 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/profile/{userId}",method=RequestMethod.GET)
-    public String getProfile(Model model, @PathVariable("userId") int userId){
-        model.addAttribute("user",userService.selectUserById(userId));
-        model.addAttribute("totalLikedCount",likeService.getUserTotalLikedCount(userId));
-        model.addAttribute("isFollower",followService.isFollower(
-                hostHolder.get().getId(), EntityType.USER,userId));
-        model.addAttribute("followerCount",followService.getFollowerCount(EntityType.USER,userId));
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfile(Model model, @PathVariable("userId") int userId) {
+        model.addAttribute("user", userService.selectUserById(userId));
+        model.addAttribute("totalLikedCount", likeService.getUserTotalLikedCount(userId));
+        model.addAttribute("isFollower", followService.isFollower(
+                hostHolder.get().getId(), EntityType.USER, userId));
+        model.addAttribute("followerCount", followService.getFollowerCount(EntityType.USER, userId));
+        model.addAttribute("followeeCount", followService.getFolloweeCount(userId, EntityType.USER));
         return "site/profile";
     }
 }

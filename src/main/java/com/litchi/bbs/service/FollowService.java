@@ -167,9 +167,15 @@ public class FollowService {
         return res;
     }
 
-    public Date getFollowTime(int entityType, int entityId, int followerId) {
+    public Date getFollowerTime(int entityType, int entityId, int followerId) {
         String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
         Double time = jedisAdapter.zscore(followerKey, String.valueOf(followerId));
+        return new Date(Double.doubleToLongBits(time));
+    }
+
+    public Date getFolloweeTime(int userId, int entityType, int entityId){
+        String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
+        Double time = jedisAdapter.zscore(followeeKey, String.valueOf(entityId));
         return new Date(Double.doubleToLongBits(time));
     }
 }
