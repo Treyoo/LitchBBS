@@ -1,10 +1,8 @@
 package com.litchi.bbs.aspect;
 
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,7 @@ public class ControllerLogAspect {
     @Around("pointcut()")
     public String around(ProceedingJoinPoint point) throws Throwable {
         Date start = new Date();
-        String templatePath = (String) point.proceed();
+        String templatePath = (String) point.proceed();//执行原方法
         long consumeTime = new Date().getTime() - start.getTime();
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert attributes != null;

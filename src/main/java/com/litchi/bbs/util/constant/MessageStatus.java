@@ -1,4 +1,4 @@
-package com.litchi.bbs.util;
+package com.litchi.bbs.util.constant;
 
 /**
  * Message状态常量

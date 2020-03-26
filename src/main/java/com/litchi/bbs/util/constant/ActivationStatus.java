@@ -1,4 +1,4 @@
-package com.litchi.bbs.util;
+package com.litchi.bbs.util.constant;
 
 /**
  * 账户激活状态常量

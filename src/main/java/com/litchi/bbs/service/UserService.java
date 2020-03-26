@@ -1,11 +1,13 @@
 package com.litchi.bbs.service;
 
-import com.litchi.bbs.dao.LoginTokenDAO;
 import com.litchi.bbs.dao.UserDAO;
 import com.litchi.bbs.entity.LoginToken;
 import com.litchi.bbs.entity.User;
-import com.litchi.bbs.util.ActivationStatus;
+import com.litchi.bbs.util.constant.ActivationStatus;
+import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.RedisKeyUtil;
+import com.litchi.bbs.util.constant.LoginTokenStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author cuiwj
@@ -27,8 +32,10 @@ public class UserService {
     private MailService mailService;
     @Autowired
     private TemplateEngine templateEngine;
+    /*@Autowired
+    private LoginTokenDAO loginTokenDAO;*/
     @Autowired
-    private LoginTokenDAO loginTokenDAO;
+    JedisAdapter jedisAdapter;
     @Value("${bbs.path.domain}")
     private String domain;
 
@@ -82,20 +89,20 @@ public class UserService {
 
     public int activation(int userId, String activationCode) {
         User user = selectUserById(userId);
-        if(user == null){
+        if (user == null) {
             return ActivationStatus.INACTIVATED;
         }
         if (user.getStatus() == ActivationStatus.ACTIVATED) {
             return ActivationStatus.ACTIVATED_REPEAT;
         }
-        if(user.getStatus() == ActivationStatus.INACTIVATED
-                && user.getActivationCode().equals(activationCode)){
+        if (user.getStatus() == ActivationStatus.INACTIVATED
+                && user.getActivationCode().equals(activationCode)) {
             user.setStatus(ActivationStatus.ACTIVATED);
             userDAO.updateStatus(user);
             return ActivationStatus.ACTIVATED;
         }
         return ActivationStatus.INACTIVATED;
-}
+    }
 
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> map = new HashMap<>(2);
@@ -115,8 +122,8 @@ public class UserService {
         }
 
         //校验密码
-        if(!user.getPassword().equals(LitchiUtil.MD5(password+user.getSalt()))){
-            map.put("passwordMsg","密码错误");
+        if (!user.getPassword().equals(LitchiUtil.MD5(password + user.getSalt()))) {
+            map.put("passwordMsg", "密码错误");
             return map;
         }
         //生成token返回客户端
@@ -124,12 +131,16 @@ public class UserService {
         return map;
     }
 
-    public void logout(String token){
-        loginTokenDAO.updateStatus(token,1);
+    public void logout(String token) {
+        /* loginTokenDAO.updateStatus(token,1);*/
+        String redisKey = RedisKeyUtil.getLoginTokenKey(token);
+        LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey),LoginToken.class);
+        loginToken.setStatus(LoginTokenStatus.INVALID);
+        jedisAdapter.set(redisKey,LitchiUtil.toJSONString(loginToken));
     }
 
-    public void updateHeaderUrl(int userId,String headerUrl){
-        userDAO.updateHeaderUrl(userId,headerUrl);
+    public void updateHeaderUrl(int userId, String headerUrl) {
+        userDAO.updateHeaderUrl(userId, headerUrl);
     }
 
     /**
@@ -142,11 +153,14 @@ public class UserService {
         LoginToken token = new LoginToken();
         token.setUserId(user.getId());
         token.setToken(LitchiUtil.genRandomString());
-        token.setStatus(0);
+        token.setStatus(LoginTokenStatus.VALID);
         Date date = new Date();
         date.setTime(date.getTime() + 1000 * 3600 * 24 * 7);//设置24*7小时有效期
         token.setExpired(date);
-        loginTokenDAO.addToken(token);
+        /*loginTokenDAO.addToken(token);*/
+        //把token存入redis中
+        String redisKey = RedisKeyUtil.getLoginTokenKey(token.getToken());
+        jedisAdapter.set(redisKey, LitchiUtil.toJSONString(token));
         return token.getToken();
     }
 }

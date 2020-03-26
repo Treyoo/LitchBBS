@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.*;
  * author:CuiWJ
  * date:2018/12/6
  */
+@Deprecated
 @Mapper
 public interface LoginTokenDAO {
     String TABLE_NAME = " login_token ";

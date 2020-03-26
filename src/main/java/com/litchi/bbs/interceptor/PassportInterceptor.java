@@ -1,9 +1,11 @@
 package com.litchi.bbs.interceptor;
 
-import com.litchi.bbs.dao.LoginTokenDAO;
 import com.litchi.bbs.dao.UserDAO;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.entity.LoginToken;
+import com.litchi.bbs.util.JedisAdapter;
+import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -21,8 +23,10 @@ import java.util.Date;
  */
 @Component
 public class PassportInterceptor implements HandlerInterceptor {
+    /*@Autowired
+    private LoginTokenDAO loginTokenDAO;*/
     @Autowired
-    private LoginTokenDAO loginTokenDAO;
+    private JedisAdapter jedisAdapter;
 
     @Autowired
     private UserDAO userDAO;
@@ -43,7 +47,9 @@ public class PassportInterceptor implements HandlerInterceptor {
             }
         }
         if (token != null) {
-            LoginToken loginToken = loginTokenDAO.selectByToken(token);
+            /*LoginToken loginToken = loginTokenDAO.selectByToken(token);*/
+            String redisKey = RedisKeyUtil.getLoginTokenKey(token);
+            LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey), LoginToken.class);
             if (loginToken != null && loginToken.getStatus() == 0 && loginToken.getExpired().after(new Date())) {
                 hostHolder.set(userDAO.selectById(loginToken.getUserId()));
             }

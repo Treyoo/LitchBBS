@@ -1,5 +1,6 @@
 package com.litchi.bbs.util;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,4 +89,12 @@ public class LitchiUtil {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
+
+    public static String toJSONString(Object obj) {
+        return JSON.toJSONString(obj);
+    }
+
+    public static <T> T parseObject(String JSONString, Class<T> clazz) {
+        return JSON.parseObject(JSONString, clazz);
+    }
 }

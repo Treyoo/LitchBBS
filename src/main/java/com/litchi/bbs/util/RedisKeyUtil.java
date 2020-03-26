@@ -18,6 +18,7 @@ public class RedisKeyUtil {
     private static final String BIZ_FOLLOWER = "FOLLOWER";
     private static final String BIZ_FOLLOWEE = "FOLLOWEE";
     private static final String BIZ_TIMELINE = "TIMELINE";
+    private static final String LOGIN_TOKEN = "LOGIN_TOKEN";
 
     public static String getBizLikeKey(int entityType, int entityId) {
         return BIZ_LIKE + SPLIT + entityType + SPLIT + entityId;
@@ -62,5 +63,9 @@ public class RedisKeyUtil {
     }
     public static String getEntityDislikeCountKey(int entityType, int entityId) {
         return DISLIKE_COUNT + SPLIT + entityType + SPLIT + entityId;
+    }
+
+    public static String getLoginTokenKey(String token){
+        return LOGIN_TOKEN+SPLIT+token;
     }
 }

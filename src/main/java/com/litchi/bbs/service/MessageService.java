@@ -4,7 +4,7 @@ import com.litchi.bbs.dao.MessageDAO;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.entity.Message;
 import com.litchi.bbs.util.LitchiUtil;
-import com.litchi.bbs.util.MessageStatus;
+import com.litchi.bbs.util.constant.MessageStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;

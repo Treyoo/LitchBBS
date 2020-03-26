@@ -2,7 +2,7 @@ package com.litchi.bbs.controller;
 
 import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.UserService;
-import com.litchi.bbs.util.ActivationStatus;
+import com.litchi.bbs.util.constant.ActivationStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
