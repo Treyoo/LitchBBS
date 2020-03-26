@@ -1,8 +1,8 @@
 package com.litchi.bbs.interceptor;
 
-import com.litchi.bbs.dao.UserDAO;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.entity.LoginToken;
+import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.RedisKeyUtil;
@@ -29,7 +29,7 @@ public class PassportInterceptor implements HandlerInterceptor {
     private JedisAdapter jedisAdapter;
 
     @Autowired
-    private UserDAO userDAO;
+    private UserService userService;
 
     @Autowired
     private HostHolder hostHolder;
@@ -51,7 +51,7 @@ public class PassportInterceptor implements HandlerInterceptor {
             String redisKey = RedisKeyUtil.getLoginTokenKey(token);
             LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey), LoginToken.class);
             if (loginToken != null && loginToken.getStatus() == 0 && loginToken.getExpired().after(new Date())) {
-                hostHolder.set(userDAO.selectById(loginToken.getUserId()));
+                hostHolder.set(userService.selectUserById(loginToken.getUserId()));
             }
         }
         return true;

@@ -61,9 +61,9 @@ public class JedisAdapter {
         }
     }
 
-    public void setex(String key, String value) {
+    public void setex(String key, String value, int seconds) {
         try (Jedis jedis = jedisPool.getResource()) {
-            jedis.setex(key, 10, value);
+            jedis.setex(key, seconds, value);
         } catch (Exception e) {
             logger.error("Jedis发生异常" + e.getMessage());
         }

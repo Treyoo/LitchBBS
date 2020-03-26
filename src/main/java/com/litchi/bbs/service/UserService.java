@@ -9,6 +9,8 @@ import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.RedisKeyUtil;
 import com.litchi.bbs.util.constant.LoginTokenStatus;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.Random;
  */
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private UserDAO userDAO;
     @Autowired
@@ -40,7 +43,12 @@ public class UserService {
     private String domain;
 
     public User selectUserById(int userId) {
-        return userDAO.selectById(userId);
+        User user = getUserCache(userId);//从redis缓存获取提升效率
+        if (user == null) {
+            user = userDAO.selectById(userId);
+            initUserCache(user);
+        }
+        return user;
     }
 
 
@@ -99,6 +107,7 @@ public class UserService {
                 && user.getActivationCode().equals(activationCode)) {
             user.setStatus(ActivationStatus.ACTIVATED);
             userDAO.updateStatus(user);
+            clearUserCache(userId);
             return ActivationStatus.ACTIVATED;
         }
         return ActivationStatus.INACTIVATED;
@@ -134,13 +143,14 @@ public class UserService {
     public void logout(String token) {
         /* loginTokenDAO.updateStatus(token,1);*/
         String redisKey = RedisKeyUtil.getLoginTokenKey(token);
-        LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey),LoginToken.class);
+        LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey), LoginToken.class);
         loginToken.setStatus(LoginTokenStatus.INVALID);
-        jedisAdapter.set(redisKey,LitchiUtil.toJSONString(loginToken));
+        jedisAdapter.set(redisKey, LitchiUtil.toJSONString(loginToken));
     }
 
     public void updateHeaderUrl(int userId, String headerUrl) {
         userDAO.updateHeaderUrl(userId, headerUrl);
+        clearUserCache(userId);
     }
 
     /**
@@ -162,5 +172,24 @@ public class UserService {
         String redisKey = RedisKeyUtil.getLoginTokenKey(token.getToken());
         jedisAdapter.set(redisKey, LitchiUtil.toJSONString(token));
         return token.getToken();
+    }
+
+    //缓存用户
+    private void initUserCache(User user) {
+        String redisKey = RedisKeyUtil.getUserKey(user.getId());
+        jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(user),1800);
+
+    }
+
+    //从缓存获取用户
+    private User getUserCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return LitchiUtil.parseObject(jedisAdapter.get(redisKey), User.class);
+    }
+
+    //删除缓存
+    private void clearUserCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        jedisAdapter.del(redisKey);
     }
 }
