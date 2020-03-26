@@ -268,4 +268,13 @@ public class JedisAdapter {
             return -1L;
         }
     }
+
+    public Double getScore(String key, String member){
+        try(Jedis jedis = jedisPool.getResource()){
+            return jedis.zscore(key,member);
+        }catch (Exception e) {
+            logger.error("Jedis发生异常" + e.getMessage());
+            return -1.0;
+        }
+    }
 }

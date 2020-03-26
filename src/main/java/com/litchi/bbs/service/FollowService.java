@@ -34,9 +34,9 @@ public class FollowService {
         try (Jedis jedis = jedisAdapter.getJedis();
              Transaction tx = jedis.multi()) {
             //用户followee增加实体id
-            tx.zadd(followeeKey, date.getTime(), String.valueOf(entityId));
+            tx.zadd(followeeKey, Double.longBitsToDouble(date.getTime()), String.valueOf(entityId));
             //实体follower增加用户id
-            tx.zadd(followerKey, date.getTime(), String.valueOf(userId));
+            tx.zadd(followerKey, Double.longBitsToDouble(date.getTime()), String.valueOf(userId));
             List<Object> res = tx.exec();
             return res.size() == 2 && (Long) res.get(0) == 1 && (Long) res.get(1) == 1;
         }
@@ -53,8 +53,8 @@ public class FollowService {
     public boolean unfollow(int userId, int entityType, int enityId) {
         String followerKey = RedisKeyUtil.getFollowerKey(entityType, enityId);
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-        try(Jedis jedis = jedisAdapter.getJedis();
-            Transaction tx = jedis.multi()){
+        try (Jedis jedis = jedisAdapter.getJedis();
+             Transaction tx = jedis.multi()) {
             //用户followee移除实体id
             tx.zrem(followeeKey, String.valueOf(enityId));
             //实体follower移除用户id
@@ -110,7 +110,7 @@ public class FollowService {
      */
     public List<Integer> getFollowers(int entityType, int entityId, int offset, int count) {
         String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
-        Set<String> res = jedisAdapter.zrevrange(followerKey, offset, offset + count);
+        Set<String> res = jedisAdapter.zrevrange(followerKey, offset, offset + count - 1);
         return parseElements(res);
     }
 
@@ -123,11 +123,11 @@ public class FollowService {
      * @return 实体前count位follower的id集合
      */
     public List<Integer> getFollowers(int entityType, int entityId, int count) {
-        return getFollowers(entityType, entityId, 0, count);
+        return getFollowers(entityType, entityId, 0, count - 1);
     }
 
     /**
-     * 获取用户的follower
+     * 获取用户的followee
      *
      * @param userId
      * @param entityType
@@ -137,7 +137,7 @@ public class FollowService {
      */
     public List<Integer> getFollowees(int userId, int entityType, int offset, int count) {
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-        Set<String> res = jedisAdapter.zrevrange(followeeKey, offset, offset + count);
+        Set<String> res = jedisAdapter.zrevrange(followeeKey, offset, offset + count - 1);
         return parseElements(res);
     }
 
@@ -150,7 +150,7 @@ public class FollowService {
      * @return 用户前count位followee的id集合
      */
     public List<Integer> getFollowees(int userId, int entityType, int count) {
-        return getFollowees(userId, entityType, 0, count);
+        return getFollowees(userId, entityType, 0, count - 1);
     }
 
     /**
@@ -165,5 +165,11 @@ public class FollowService {
             res.add(Integer.parseInt(element));
         }
         return res;
+    }
+
+    public Date getFollowTime(int entityType, int entityId, int followerId) {
+        String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
+        Double time = jedisAdapter.zscore(followerKey, String.valueOf(followerId));
+        return new Date(Double.doubleToLongBits(time));
     }
 }

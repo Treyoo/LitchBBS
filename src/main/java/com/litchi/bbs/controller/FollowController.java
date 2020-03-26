@@ -3,6 +3,7 @@ package com.litchi.bbs.controller;
 import com.litchi.bbs.dao.CommentDAO;
 import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.HostHolder;
+import com.litchi.bbs.entity.Page;
 import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.FollowService;
@@ -93,14 +94,24 @@ public class FollowController {
     }
 
     @RequestMapping(path = "/user/{id}/followers")
-    public String getFollowers(@PathVariable("id") int userId, Model model) {
-
-        List<Integer> followerIds = followService.getFollowers(EntityType.USER, userId, 15);
-        List<Map<String, Object>> vos = getFollowUsersInfo(hostHolder.get().getId(), followerIds);
+    public String getFollowers(@PathVariable("id") int userId, Model model, Page page) {
+        page.setLimit(3);
+        page.setRows((int) followService.getFollowerCount(EntityType.USER, userId));
+        page.setPath("/user/"+userId+"/followers");
+        User loginUser = hostHolder.get();
+        List<Integer> followerIds = followService.getFollowers(EntityType.USER, userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> vos = new ArrayList<>();
+        for (int followerId : followerIds) {
+            Map<String,Object> vo = new HashMap<>();
+            vo.put("follower",userService.selectUserById(followerId));
+            vo.put("followTime",followService.getFollowTime(EntityType.USER,userId,followerId));
+            vo.put("isFollower", loginUser != null
+                    && followService.isFollower(loginUser.getId(), EntityType.USER, followerId));
+            vos.add(vo);
+        }
         model.addAttribute("followers", vos);
-        model.addAttribute("followerCount", followService.getFollowerCount(EntityType.USER, userId));
-        model.addAttribute("curUser", userService.selectUserById(userId));
-        return "followers";
+        model.addAttribute("user",userService.selectUserById(userId));
+        return "site/follower";
     }
 
     @RequestMapping(path = "/user/{id}/followees")
@@ -110,7 +121,7 @@ public class FollowController {
         model.addAttribute("followees", vos);
         model.addAttribute("followeeCount", followService.getFolloweeCount(userId, EntityType.USER));
         model.addAttribute("curUser", userService.selectUserById(userId));
-        return "followees";
+        return "site/followee";
     }
 
     /**
