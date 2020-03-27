@@ -2,6 +2,29 @@
 
 网页论坛，使用SpringBoot,MyBatis,Thymeleaf
 
+##环境依赖
+以下示例为Ubuntu系统下
+### 安装MySql
+sudo apt-get install mysql-server
+1.设置root用户密码为root
+2.新建数据库bbs:mysql命令行执行CREATE DATABASE bbs;
+
+### 安装Redis
+sudo apt-get install redis-server
+不设置密码
+
+### 安装Maven
+下载压缩包，下载地址：https://maven.apache.org/
+解压，配置/bin目录到环境变量(/etc/profile)中
+
+### 安装Kafka
+下载压缩包，下载地址：http://kafka.apache.org/
+解压、启动
+先启动ZooKeeper:> bin/zookeeper-server-start.sh config/zookeeper.properties
+再启动Kafka-Server:> bin/kafka-server-start.sh config/server.properties
+
+
+
 
 
 ## 开发遇到的一些问题
