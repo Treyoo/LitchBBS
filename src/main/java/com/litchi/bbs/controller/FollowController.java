@@ -1,14 +1,14 @@
 package com.litchi.bbs.controller;
 
+import com.litchi.bbs.async.Event;
+import com.litchi.bbs.async.EventProducer;
 import com.litchi.bbs.dao.CommentDAO;
-import com.litchi.bbs.entity.EntityType;
-import com.litchi.bbs.entity.HostHolder;
-import com.litchi.bbs.entity.Page;
-import com.litchi.bbs.entity.User;
+import com.litchi.bbs.entity.*;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.FollowService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.constant.EventTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +23,14 @@ import java.util.*;
  * Created on 2018/12/12
  */
 @Controller
-public class FollowController {
+public class FollowController implements EventTopic {
     private static final Logger logger = LoggerFactory.getLogger(FollowController.class);
     @Autowired
     HostHolder hostHolder;
     @Autowired
     FollowService followService;
-    //    @Autowired
-//    EventProducer eventProducer;
+    @Autowired
+    EventProducer eventProducer;
     @Autowired
     DiscussPostService discussPostService;
     @Autowired
@@ -42,11 +42,11 @@ public class FollowController {
     @ResponseBody
     public String followUser(@RequestParam("userId") int userId) {
         boolean res = followService.follow(hostHolder.get().getId(), EntityType.USER, userId);
-//            eventProducer.fireEvent(new Event(EventType.FOLLOW)
-//                    .setActorId(hostHolder.get().getId())
-//                    .setEntityType(EntityType.USER)
-//                    .setEntityId(userId)
-//                    .setEntityOwnerId(userId));
+            eventProducer.fireEvent(new Event(TOPIC_FOLLOW)
+                    .setActorId(hostHolder.get().getId())
+                    .setEntityType(EntityType.USER)
+                    .setEntityId(userId)
+                    .setEntityOwnerId(userId));
         //给前端返回被关注用户的最新关注人数
         return LitchiUtil.getJSONString(res ? 0 : 1,
                 String.valueOf(followService.getFollowerCount(EntityType.USER, userId)));
@@ -64,15 +64,16 @@ public class FollowController {
     @RequestMapping(path = {"/followDiscuss"}, method = RequestMethod.POST)
     @ResponseBody
     public String followDiscuss(@RequestParam("postId") int postId) {
-        if (discussPostService.selectByid(postId) == null) {
+        DiscussPost post = discussPostService.selectByid(postId);
+        if (post == null) {
             return LitchiUtil.getJSONString(1, "帖子不存在！");
         }
         boolean res = followService.follow(hostHolder.get().getId(), EntityType.DISCUSS_POST, postId);
-//            eventProducer.fireEvent(new Event(EventType.FOLLOW)
-//                    .setActorId(hostHolder.get().getId())
-//                    .setEntityType(EntityType.QUESTION)
-//                    .setEntityId(postId)
-//                    .setEntityOwnerId(discussPostService.getById(postId).getUserId()));
+            eventProducer.fireEvent(new Event(TOPIC_FOLLOW)
+                    .setActorId(hostHolder.get().getId())
+                    .setEntityType(EntityType.DISCUSS_POST)
+                    .setEntityId(postId)
+                    .setEntityOwnerId(post.getUserId()));
         //给前端返回关注数量和关注者等信息
         Map<String, Object> returnInfo = new HashMap<>();
         returnInfo.put("count", String.valueOf(followService.getFollowerCount(EntityType.DISCUSS_POST, postId)));

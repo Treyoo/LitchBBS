@@ -16,7 +16,7 @@ public interface MessageDAO {
     String SELECT_FIELDS = " id," + INSERT_FIELDS;
 
     @Insert({"insert into", TABLE_NAME, "(", INSERT_FIELDS,
-            ") values (#{fromId},#{toId},#{content},#{createdDate},#{hasRead},#{conversationId})"})
+            ") values (#{fromId},#{toId},#{content},#{createTime},#{status},#{conversationId})"})
     int addMessage(Message message);
 
     List<Message> getConversationDetail(@Param("conversationId") String conversationId,
