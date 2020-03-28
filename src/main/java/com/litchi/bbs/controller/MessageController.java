@@ -35,68 +35,63 @@ public class MessageController {
     @RequestMapping(value = "/letter", method = RequestMethod.POST)
     @ResponseBody
     public String addLetter(@RequestParam("toName") String toName,
-                             @RequestParam("content") String content) {
-        try {
-            if (hostHolder.get() == null) {
-                return LitchiUtil.getJSONString(999, "请先登录");
-            }
-            User targetUser = null;//TODO : fix
-//            User targetUser = userService.selectByName(toName);
-            if (targetUser == null) {
-                return LitchiUtil.getJSONString(1, "用户不存在");
-            }
-
-            Message message = new Message();
-            int fromId = hostHolder.get().getId();
-            int toId = targetUser.getId();
-            message.setFromId(fromId);
-            message.setToId(toId);
-            message.setContent(content);
-            message.setCreateTime(new Date());
-            message.setConversationId(fromId < toId ? fromId + "_" + toId : toId + "_" + fromId);
-            messageService.addMessage(message);
-            return LitchiUtil.getJSONString(0);
-        } catch (Exception e) {
-            logger.error("添加站内信失败" + e.getMessage());
-            return LitchiUtil.getJSONString(1, "发送失败");
+                            @RequestParam("content") String content) {
+        if (hostHolder.get() == null) {
+            return LitchiUtil.getJSONString(999, "请先登录");
         }
+        User targetUser = userService.selectUserByName(toName);
+        if (targetUser == null) {
+            return LitchiUtil.getJSONString(1, "用户不存在");
+        }
+        Message message = new Message();
+        int fromId = hostHolder.get().getId();
+        int toId = targetUser.getId();
+        message.setFromId(fromId);
+        message.setToId(toId);
+        message.setContent(content);
+        message.setCreateTime(new Date());
+        message.setConversationId(fromId < toId ? fromId + "_" + toId : toId + "_" + fromId);
+        messageService.addMessage(message);
+        return LitchiUtil.getJSONString(0);
     }
 
     @RequestMapping(path = "/letter/detail/{conversationId}", method = RequestMethod.GET)
     public String conversationDetail(@PathVariable("conversationId") String conversationId,
-                                     Model model,Page page) {
+                                     Model model, Page page) {
         try {
             int localUserId = hostHolder.get().getId();
-            page.setPath("/msg/letter/detail/"+conversationId);
-            page.setRows(messageService.getConversationTotalLetterCount(localUserId,conversationId));
+            page.setPath("/msg/letter/detail/" + conversationId);
+            page.setRows(messageService.getConversationTotalLetterCount(localUserId, conversationId));
             page.setLimit(3);
             List<Message> conversation = messageService.getConversationDetail(conversationId,
                     page.getOffset(), page.getLimit());
-            List<Map<String,Object>> vos = new ArrayList<>();
+            List<Map<String, Object>> vos = new ArrayList<>();
             for (Message msg : conversation) {
-                Map<String,Object> vo = new HashMap<>();
+                Map<String, Object> vo = new HashMap<>();
                 vo.put("user", userService.selectUserById(msg.getFromId()));
                 vo.put("message", msg);
                 vos.add(vo);
             }
             model.addAttribute("messages", vos);
-            model.addAttribute("target",getLetterTarget(conversationId));
+            model.addAttribute("target", getLetterTarget(conversationId));
         } catch (Exception e) {
             logger.error("获取会话详情失败" + e.getMessage());
             e.printStackTrace();
         }
         return "site/letter-detail";
     }
-    private User getLetterTarget(String conversationId){
+
+    private User getLetterTarget(String conversationId) {
         String[] ids = conversationId.split("_");
         int id0 = Integer.parseInt(ids[0]);
         int id1 = Integer.parseInt(ids[1]);
-        if(hostHolder.get().getId() == id0){
+        if (hostHolder.get().getId() == id0) {
             return userService.selectUserById(id1);
-        }else{
+        } else {
             return userService.selectUserById(id0);
         }
     }
+
     @RequestMapping(path = "/letters", method = RequestMethod.GET)
     public String conversationList(Model model, Page page) {
         int localUserId = hostHolder.get().getId();
@@ -116,13 +111,13 @@ public class MessageController {
             vo.put("user", targetUser);
             vos.add(vo);
         }
-        model.addAttribute("totalUnreadLetterCount",messageService.getUnReadLetterCount(localUserId));
+        model.addAttribute("totalUnreadLetterCount", messageService.getUnReadLetterCount(localUserId));
         model.addAttribute("conversations", vos);
         return "site/letter";
     }
 
-    @RequestMapping(path = "/notices",method = RequestMethod.GET)
-    public String noticeList(){
+    @RequestMapping(path = "/notices", method = RequestMethod.GET)
+    public String noticeList() {
         return "site/notice";
     }
 

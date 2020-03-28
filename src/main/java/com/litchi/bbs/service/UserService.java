@@ -54,6 +54,10 @@ public class UserService {
         return user;
     }
 
+    public User selectUserByName(String username){
+        return userDAO.selectByName(username);
+    }
+
 
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>(2);
