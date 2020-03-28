@@ -32,9 +32,9 @@ public class MessageController {
     @Autowired
     HostHolder hostHolder;
 
-    @RequestMapping(value = "/addMessage", method = RequestMethod.POST)
+    @RequestMapping(value = "/letter", method = RequestMethod.POST)
     @ResponseBody
-    public String addMessage(@RequestParam("toName") String toName,
+    public String addLetter(@RequestParam("toName") String toName,
                              @RequestParam("content") String content) {
         try {
             if (hostHolder.get() == null) {
@@ -62,12 +62,12 @@ public class MessageController {
         }
     }
 
-    @RequestMapping(path = "/detail/{conversationId}", method = RequestMethod.GET)
+    @RequestMapping(path = "/letter/detail/{conversationId}", method = RequestMethod.GET)
     public String conversationDetail(@PathVariable("conversationId") String conversationId,
                                      Model model,Page page) {
         try {
             int localUserId = hostHolder.get().getId();
-            page.setPath("/msg/detail/"+conversationId);
+            page.setPath("/msg/letter/detail/"+conversationId);
             page.setRows(messageService.getConversationTotalLetterCount(localUserId,conversationId));
             page.setLimit(3);
             List<Message> conversation = messageService.getConversationDetail(conversationId,
@@ -97,10 +97,10 @@ public class MessageController {
             return userService.selectUserById(id0);
         }
     }
-    @RequestMapping(path = "/list", method = RequestMethod.GET)
+    @RequestMapping(path = "/letters", method = RequestMethod.GET)
     public String conversationList(Model model, Page page) {
         int localUserId = hostHolder.get().getId();
-        page.setPath("/msg/list");
+        page.setPath("/msg/letters");
         page.setRows(messageService.getConversationCount(localUserId));
         page.setLimit(3);
         List<Message> conversationList = messageService.getConversationList(
@@ -116,9 +116,14 @@ public class MessageController {
             vo.put("user", targetUser);
             vos.add(vo);
         }
-        model.addAttribute("totalUnread",messageService.getUnReadLetterCount(localUserId));
+        model.addAttribute("totalUnreadLetterCount",messageService.getUnReadLetterCount(localUserId));
         model.addAttribute("conversations", vos);
         return "site/letter";
+    }
+
+    @RequestMapping(path = "/notices",method = RequestMethod.GET)
+    public String noticeList(){
+        return "site/notice";
     }
 
 }
