@@ -71,7 +71,9 @@
 							</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link position-relative active" th:href="@{/msg/notices}">系统通知<span class="badge badge-danger">27</span></a>
+							<a class="nav-link position-relative active" th:href="@{/msg/notices}">系统通知
+								<span class="badge badge-danger" th:text="${totalUnreadNoticeCount}">27</span>
+							</a>
 						</li>
 					</ul>
 				</div>	
@@ -79,49 +81,66 @@
 				<!-- 通知列表 -->
 				<ul class="list-unstyled">
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
-						<span class="badge badge-danger">3</span>
+						<span class="badge badge-danger" th:text="${commentNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/reply.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">
 							<h6 class="mt-0 mb-3">
 								<span>评论</span>
-								<span class="float-right text-muted font-size-12">2019-04-28 14:13:25</span>
+								<span class="float-right text-muted font-size-12"
+									  th:text="${#dates.format(commentNotice.message.createTime,'yyyy-MM-dd HH:mm:ss')}">
+									2019-04-28 14:13:25
+								</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">用户 <i>nowcoder</i> 评论了你的<b>帖子</b> ...</a>
+								<a href="notice-detail.html">用户 <i th:utext="${commentNotice.actorUser.username}">谁</i>
+									评论了你的<b th:text="${commentNotice.entityType==1?'帖子':'评论'}">帖子</b> ...</a>
 								<ul class="d-inline font-size-12 float-right">
-									<li class="d-inline ml-2"><span class="text-primary">共 <i>3</i> 条会话</span></li>
+									<li class="d-inline ml-2"><span class="text-primary">共
+										<i th:text="${commentNotice.totalCount}">3</i> 条会话</span></li>
 								</ul>
 							</div>
 						</div>
 					</li>
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
-						<span class="badge badge-danger">3</span>
+						<span class="badge badge-danger" th:text="${likeNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/like.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">
 							<h6 class="mt-0 mb-3">
 								<span>赞</span>
-								<span class="float-right text-muted font-size-12">2019-04-28 14:13:25</span>
+								<span class="float-right text-muted font-size-12"
+									  th:text="${#dates.format(likeNotice.message.createTime,'yyyy-MM-dd HH:mm:ss')}">
+									2019-04-28 14:13:25
+								</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">用户 <i>nowcoder</i> 点赞了你的<b>帖子</b> ...</a>
+								<a href="notice-detail.html">用户
+									<i th:utext="${likeNotice.actorUser.username}">谁</i> 点赞了你的
+									<b th:text="${likeNotice.entityType==1?'帖子':likeNotice.entityType==2?'评论':'回复'}">
+										帖子
+									</b>...</a>
 								<ul class="d-inline font-size-12 float-right">
-									<li class="d-inline ml-2"><span class="text-primary">共 <i>3</i> 条会话</span></li>
+									<li class="d-inline ml-2"><span class="text-primary">共
+										<i th:text="${likeNotice.totalCount}">3</i> 条会话</span></li>
 								</ul>
 							</div>
 						</div>
 					</li>
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
-						<span class="badge badge-danger">3</span>
+						<span class="badge badge-danger" th:text="${followNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/follow.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">
 							<h6 class="mt-0 mb-3">
 								<span>关注</span>
-								<span class="float-right text-muted font-size-12">2019-04-28 14:13:25</span>
+								<span class="float-right text-muted font-size-12"
+									  th:text="${#dates.format(followNotice.message.createTime,'yyyy-MM-dd HH:mm:ss')}">
+									2019-04-28 14:13:25</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">用户 <i>nowcoder</i> 关注了你 ...</a>
+								<a href="notice-detail.html">用户
+									<i th:utext="${followNotice.actorUser.username}">谁</i> 关注了你 ...</a>
 								<ul class="d-inline font-size-12 float-right">
-									<li class="d-inline ml-2"><span class="text-primary">共 <i>3</i> 条会话</span></li>
+									<li class="d-inline ml-2"><span class="text-primary">共
+										<i th:text="${followNotice.totalCount}">3</i> 条会话</span></li>
 								</ul>
 							</div>
 						</div>

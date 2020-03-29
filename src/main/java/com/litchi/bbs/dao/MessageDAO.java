@@ -25,17 +25,19 @@ public interface MessageDAO {
 
     /**
      * 获取私信数量
-     * @param userId 当前用户id
+     *
+     * @param userId         当前用户id
      * @param conversationId 会话id,为null时代表全部会话
-     * @param status 哪种状态的私信，为-1时代表全部(未读+已读)
+     * @param status         哪种状态的私信，为-1时代表全部(未读+已读)
      * @return 私信数量
      */
     int getLetterCount(@Param("userId") int userId,
                        @Param("conversationId") String conversationId,
-                       @Param("status")int status);
+                       @Param("status") int status);
 
     /**
      * 设置指定conversation的所有未读消息变为已读状态
+     *
      * @param conversationId
      * @param userId
      * @return
@@ -47,19 +49,25 @@ public interface MessageDAO {
 
     /**
      * 获取指定用户站内信会话列表
+     *
      * @param userId
      * @param offset
      * @param limit
      * @return
      */
     List<Message> getConversationList(@Param("userId") int userId,
-                                     @Param("offset") int offset,
-                                     @Param("limit") int limit);
+                                      @Param("offset") int offset,
+                                      @Param("limit") int limit);
 
     /**
      * 获取会话数量
+     *
      * @param userId 当前用户
      * @return 会话数量
      */
     int getConversationCount(@Param("userId") int userId);
+
+    Message getLatestNotice(int userId, String topic);
+
+    int getNoticeCount(int userId, String topic, int status);
 }

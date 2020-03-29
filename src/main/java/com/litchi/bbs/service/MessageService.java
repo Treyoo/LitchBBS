@@ -35,7 +35,7 @@ public class MessageService implements MessageStatus {
         return messageDAO.addMessage(message) > 0 ? message.getId() : 0;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED,propagation = Propagation.REQUIRED)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public List<Message> getConversationDetail(String conversationId, int offset, int limit) {
 //        messageDAO.updateRead(conversationId, hostHolder.get().getId());
         return messageDAO.getConversationDetail(conversationId, offset, limit);
@@ -47,7 +47,7 @@ public class MessageService implements MessageStatus {
      * @return 单个会话未读私信数量
      */
     public int getConversationUnReadLetterCount(int userId, String conversationId) {
-        return messageDAO.getLetterCount(userId,conversationId,UNREAD);
+        return messageDAO.getLetterCount(userId, conversationId, UNREAD);
     }
 
     /**
@@ -56,15 +56,15 @@ public class MessageService implements MessageStatus {
      * @return 单个会话全部私信数量
      */
     public int getConversationTotalLetterCount(int userId, String conversationId) {
-        return messageDAO.getLetterCount(userId,conversationId,-1);
+        return messageDAO.getLetterCount(userId, conversationId, ALL);
     }
 
     /**
      * @param userId
      * @return 用户全部未读私信数量
      */
-    public int getUnReadLetterCount(int userId){
-        return messageDAO.getLetterCount(userId,null,UNREAD);
+    public int getUnReadLetterCount(int userId) {
+        return messageDAO.getLetterCount(userId, null, UNREAD);
     }
 
     public boolean updateRead(String conversationId, int userId, int hasRead) {
@@ -78,4 +78,21 @@ public class MessageService implements MessageStatus {
     public int getConversationCount(int userId) {
         return messageDAO.getConversationCount(userId);
     }
+
+    public Message getLatestNotice(int userId, String topic) {
+        return messageDAO.getLatestNotice(userId, topic);
+    }
+
+    public int getUnReadNoticeCount(int userId) {
+        return messageDAO.getNoticeCount(userId, null, UNREAD);
+    }
+
+    public int getTopicUnReadNoticeCount(int userId, String topic) {
+        return messageDAO.getNoticeCount(userId, topic, UNREAD);
+    }
+
+    public int getTopicTotalNoticeCount(int userId, String topic) {
+        return messageDAO.getNoticeCount(userId, topic, ALL);
+    }
+
 }

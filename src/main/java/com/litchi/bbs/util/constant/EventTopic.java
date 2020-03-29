@@ -1,7 +1,7 @@
 package com.litchi.bbs.util.constant;
 
 /**
- * 事件主题常亮
+ * 事件主题常量
  * @author cuiwj
  * @date 2020/3/27
  */

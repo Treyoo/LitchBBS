@@ -7,12 +7,14 @@ import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.MessageService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.constant.EventTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
@@ -22,7 +24,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/msg")
-public class MessageController {
+public class MessageController implements EventTopic {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
     @Autowired
@@ -112,13 +114,36 @@ public class MessageController {
             vos.add(vo);
         }
         model.addAttribute("totalUnreadLetterCount", messageService.getUnReadLetterCount(localUserId));
+        model.addAttribute("totalUnreadNoticeCount", messageService.getUnReadNoticeCount(localUserId));
         model.addAttribute("conversations", vos);
         return "site/letter";
     }
 
     @RequestMapping(path = "/notices", method = RequestMethod.GET)
-    public String noticeList() {
+    public String noticeList(Model model) {
+        model.addAttribute("commentNotice", this.parseNoticeVo(TOPIC_COMMENT));//获取最新一条评论通知
+        model.addAttribute("likeNotice", this.parseNoticeVo(TOPIC_LIKE));//获取最新一条点赞通知
+        model.addAttribute("followNotice", this.parseNoticeVo(TOPIC_FOLLOW));//获取最新一条关注通知
+        User loginUser = hostHolder.get();
+        model.addAttribute("totalUnreadLetterCount", messageService.getUnReadLetterCount(loginUser.getId()));
+        model.addAttribute("totalUnreadNoticeCount", messageService.getUnReadNoticeCount(loginUser.getId()));
         return "site/notice";
+    }
+
+    private Map<String, Object> parseNoticeVo(String topic) {
+        User loginUser = hostHolder.get();
+        Map<String, Object> noticeVo = new HashMap<>();
+        Message message = messageService.getLatestNotice(loginUser.getId(), topic);
+        message.setContent(HtmlUtils.htmlUnescape(message.getContent()));
+        noticeVo.put("message", message);
+        Map<String, Integer> data = LitchiUtil.parseObject(message.getContent(), HashMap.class);
+        noticeVo.put("actorUser", userService.selectUserById(data.get("userId")));
+        noticeVo.put("entityType", data.get("entityType"));
+        noticeVo.put("entityId", data.get("entityId"));
+        noticeVo.put("postId", data.get("postId"));//当实体是comment时方便链接跳转
+        noticeVo.put("unReadCount", messageService.getTopicUnReadNoticeCount(loginUser.getId(), topic));
+        noticeVo.put("totalCount", messageService.getTopicTotalNoticeCount(loginUser.getId(), topic));
+        return noticeVo;
     }
 
 }

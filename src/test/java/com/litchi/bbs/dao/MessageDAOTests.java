@@ -34,4 +34,13 @@ public class MessageDAOTests {
         Assert.assertTrue(count > 0);
         System.out.println("Conversation count=" + count);
     }
+
+    @Test
+    public void testGetLatestNotice(){
+        int userId=149;
+        String topic = "comment";
+        Message message = messageDAO.getLatestNotice(userId,topic);
+        Assert.assertNotNull(message);
+        Assert.assertEquals(topic,message.getConversationId());
+    }
 }

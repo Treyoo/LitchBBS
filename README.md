@@ -22,7 +22,7 @@ sudo apt-get install redis-server
 解压、启动
 先启动ZooKeeper:> bin/zookeeper-server-start.sh config/zookeeper.properties
 再启动Kafka-Server:> bin/kafka-server-start.sh config/server.properties
-命令行手动创建topic:comment,like,follow
+命令行手动创建topic:test,comment,like,follow
 e.g. bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic comment
 
 
