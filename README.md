@@ -22,8 +22,6 @@ sudo apt-get install redis-server
 解压、启动
 先启动ZooKeeper:> bin/zookeeper-server-start.sh config/zookeeper.properties
 再启动Kafka-Server:> bin/kafka-server-start.sh config/server.properties
-命令行手动创建topic:test,comment,like,follow
-e.g. bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic comment
 
 
 
@@ -43,5 +41,12 @@ set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_
   (必须是mysqld.cnf配置文件，在my.cnf中添加会出现无法启动mysql服务！！)
 (2)重启mysql。sudo service mysql restart
 (3)验证是否生效。mysql命令行执行select @@sql_mode;查看结果还有无ONLY_FULL_GROUP_BY
+
+2.启动报错Topic(s) [comment, follow, like] is/are not present and missingTopicsFatal is true
+报错原因： 消费监听接口监听的主题不存在时，默认会报错
+解决办法：办法1：在application.properties配置文件中将listener的属性missingTopicsFatal设置为false
+spring.kafka.listener.missing-topics-fatal=false。
+办法2：在终端执行命令手动创建缺失的Topic再启动应用。
+e.g. bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic comment
 
 
