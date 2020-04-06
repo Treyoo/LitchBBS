@@ -19,6 +19,7 @@ import java.io.PrintWriter;
  * date:2018/12/7
  */
 @Component
+@Deprecated
 public class LoginRequiredInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory.getLogger(LoginRequiredInterceptor.class);
 

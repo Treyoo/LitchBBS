@@ -56,4 +56,9 @@ public class HomeController {
     public String get500ErrorPage(){
         return "error/500";
     }
+
+    @RequestMapping(path = "/denied", method = RequestMethod.GET)
+    public String get403ErrorPage(){
+        return "error/403";
+    }
 }

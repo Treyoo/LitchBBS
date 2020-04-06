@@ -7,28 +7,27 @@ import com.litchi.bbs.util.constant.ActivationStatus;
 import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.RedisKeyUtil;
+import com.litchi.bbs.util.constant.LitchiConst;
 import com.litchi.bbs.util.constant.LoginTokenStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author cuiwj
  * @date 2020/3/8
  */
 @Service
-public class UserService {
+public class UserService implements LitchiConst {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private UserDAO userDAO;
@@ -54,7 +53,7 @@ public class UserService {
         return user;
     }
 
-    public User selectUserByName(String username){
+    public User selectUserByName(String username) {
         return userDAO.selectByName(username);
     }
 
@@ -197,5 +196,22 @@ public class UserService {
     private void clearUserCache(int userId) {
         String redisKey = RedisKeyUtil.getUserKey(userId);
         jedisAdapter.del(redisKey);
+    }
+
+    //获取权限标识
+    //本方法是模仿实现UserDetails接口中的同名方法
+    public Collection<? extends GrantedAuthority> getAuthorities(User user) {
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add((GrantedAuthority) () -> {
+            switch (user.getType()) {
+                case 1:
+                    return AUTHORITY_ADMIN;
+                case 2:
+                    return AUTHORITY_MODERATOR;
+                default:
+                    return AUTHORITY_USER;
+            }
+        });
+        return list;
     }
 }

@@ -2,11 +2,16 @@ package com.litchi.bbs.interceptor;
 
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.entity.LoginToken;
+import com.litchi.bbs.entity.User;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -51,7 +56,13 @@ public class PassportInterceptor implements HandlerInterceptor {
             String redisKey = RedisKeyUtil.getLoginTokenKey(token);
             LoginToken loginToken = LitchiUtil.parseObject(jedisAdapter.get(redisKey), LoginToken.class);
             if (loginToken != null && loginToken.getStatus() == 0 && loginToken.getExpired().after(new Date())) {
-                hostHolder.set(userService.selectUserById(loginToken.getUserId()));
+                User user = userService.selectUserById(loginToken.getUserId());
+                hostHolder.set(user);
+                // 由于我们绕过了Spring Security使用了我们之前的认证逻辑，所以认证通过后我们要手动
+                // 构建认证结果并存入SecurityContext中，以便于Security进行判断认证和授权 by Cuiwj
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.getAuthorities(user));
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
         return true;
@@ -67,5 +78,6 @@ public class PassportInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
         hostHolder.clear();
+        SecurityContextHolder.clearContext();
     }
 }

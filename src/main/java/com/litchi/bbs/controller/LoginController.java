@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -125,11 +126,8 @@ public class LoginController {
 
     @RequestMapping(path = "/logout")
     public String logout(@CookieValue("token") String token) {
-        try {
-            userService.logout(token);
-        } catch (Exception e) {
-            logger.error("登出失败" + e.getMessage());
-        }
+        userService.logout(token);
+        SecurityContextHolder.clearContext();
         return "redirect:/index";
     }
 

@@ -153,4 +153,10 @@ public class DiscussPostController implements LikeStatus {
         }
         return followers;
     }
+
+    @RequestMapping(path = "/delete", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE})
+    public String deleteDiscussPost() {
+        //TODO 实现
+        return "site/my-post";
+    }
 }
