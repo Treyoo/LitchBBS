@@ -122,13 +122,9 @@ public class DiscussPostController implements LikeStatus {
                     replyVo.put("reply", reply);
                     replyVo.put("user", userService.selectUserById(reply.getUserId()));
                     replyVo.put("target", target);
-                    if (loginUser == null) {
-                        replyVo.put("likeStatus",NONE);
-                    } else {
-                        replyVo.put("likeStatus", likeService.getLikeStatus
-                                (loginUser.getId(), EntityType.COMMENT, reply.getId()));
-                        replyVo.put("likeCount",likeService.getLikeCount(EntityType.COMMENT,reply.getId()));
-                    }
+                    replyVo.put("likeCount", likeService.getLikeCount(EntityType.COMMENT, reply.getId()));
+                    replyVo.put("likeStatus", loginUser == null ? NONE : likeService.getLikeStatus
+                            (loginUser.getId(), EntityType.COMMENT, reply.getId()));
                     replyVos.add(replyVo);
                 }
             }
