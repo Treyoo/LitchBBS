@@ -4,6 +4,12 @@ $(function(){
 });
 
 function send_letter() {
+	//发送异步请求前把CSRF令牌以kv形式设置到请求消息头中
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function(e, xhr, options){
+	    xhr.setRequestHeader(header, token);
+	});
 	$("#sendModal").modal("hide");
 	$("#hintModal").modal("show");
     var toName = $("#recipient-name").val();

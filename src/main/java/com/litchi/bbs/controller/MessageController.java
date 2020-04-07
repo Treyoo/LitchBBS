@@ -132,17 +132,20 @@ public class MessageController implements EventTopic {
 
     private Map<String, Object> parseNoticeVo(String topic) {
         User loginUser = hostHolder.get();
-        Map<String, Object> noticeVo = new HashMap<>();
+        Map<String, Object> noticeVo = null;
         Message message = messageService.getLatestNotice(loginUser.getId(), topic);
-        message.setContent(HtmlUtils.htmlUnescape(message.getContent()));
-        noticeVo.put("message", message);
-        Map<String, Integer> data = LitchiUtil.parseObject(message.getContent(), HashMap.class);
-        noticeVo.put("actorUser", userService.selectUserById(data.get("userId")));
-        noticeVo.put("entityType", data.get("entityType"));
-        noticeVo.put("entityId", data.get("entityId"));
-        noticeVo.put("postId", data.get("postId"));//当实体是comment时方便链接跳转
-        noticeVo.put("unReadCount", messageService.getTopicUnReadNoticeCount(loginUser.getId(), topic));
-        noticeVo.put("totalCount", messageService.getTopicTotalNoticeCount(loginUser.getId(), topic));
+        if (null != message) {
+            noticeVo = new HashMap<>();
+            message.setContent(HtmlUtils.htmlUnescape(message.getContent()));
+            noticeVo.put("message", message);
+            Map<String, Integer> data = LitchiUtil.parseObject(message.getContent(), HashMap.class);
+            noticeVo.put("actorUser", userService.selectUserById(data.get("userId")));
+            noticeVo.put("entityType", data.get("entityType"));
+            noticeVo.put("entityId", data.get("entityId"));
+            noticeVo.put("postId", data.get("postId"));//当实体是comment时方便链接跳转
+            noticeVo.put("unReadCount", messageService.getTopicUnReadNoticeCount(loginUser.getId(), topic));
+            noticeVo.put("totalCount", messageService.getTopicTotalNoticeCount(loginUser.getId(), topic));
+        }
         return noticeVo;
     }
 

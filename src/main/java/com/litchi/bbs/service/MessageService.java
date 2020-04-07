@@ -6,6 +6,7 @@ import com.litchi.bbs.entity.Message;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.constant.MessageStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -79,6 +80,7 @@ public class MessageService implements MessageStatus {
         return messageDAO.getConversationCount(userId);
     }
 
+    @Nullable
     public Message getLatestNotice(int userId, String topic) {
         return messageDAO.getLatestNotice(userId, topic);
     }

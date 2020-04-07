@@ -80,7 +80,7 @@
 				
 				<!-- 通知列表 -->
 				<ul class="list-unstyled">
-					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
+					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:if="${commentNotice!=null}">
 						<span class="badge badge-danger" th:text="${commentNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/reply.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">
@@ -101,7 +101,7 @@
 							</div>
 						</div>
 					</li>
-					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
+					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:if="${likeNotice!=null}">
 						<span class="badge badge-danger" th:text="${likeNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/like.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">
@@ -125,7 +125,7 @@
 							</div>
 						</div>
 					</li>
-					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative">
+					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:if="${followNotice!=null}">
 						<span class="badge badge-danger" th:text="${followNotice.unReadCount}">3</span>
 						<img src="http://static.nowcoder.com/images/head/follow.png" class="mr-4 user-header" alt="通知图标">
 						<div class="media-body">

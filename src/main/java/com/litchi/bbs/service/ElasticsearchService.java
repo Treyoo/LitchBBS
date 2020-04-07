@@ -35,7 +35,7 @@ public class ElasticsearchService {
     @Autowired
     private DiscussPostRepository postRepository;
     @Autowired
-    private ElasticsearchTemplate elasticTemplate;
+    private ElasticsearchTemplate elasticTemplate; //TODO 用ElasticsearchRestTemplate代替
 
     public void saveDiscuss(DiscussPost discussPost) {
         postRepository.save(discussPost);

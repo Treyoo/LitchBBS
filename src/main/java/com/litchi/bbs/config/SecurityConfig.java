@@ -64,8 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Litc
                 "/actuator/**"
         ).hasAnyAuthority(
                 AUTHORITY_ADMIN
-        ).anyRequest().permitAll()
-                .and().csrf().disable();//TODO 开启防csrf
+        ).anyRequest().permitAll();
+                //.and().csrf().disable();//关闭防csrf
         //配置异常情况的处理方式
         http.exceptionHandling()
                 //没登录
