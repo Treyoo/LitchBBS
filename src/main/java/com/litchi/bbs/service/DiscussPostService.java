@@ -49,7 +49,7 @@ public class DiscussPostService {
         return discussPostDAO.addDiscussPost(discussPost) > 0 ? discussPost.getId() : 0;
     }
 
-    public DiscussPost selectByid(int id){
+    public DiscussPost selectById(int id){
         return discussPostDAO.selectById(id);
     }
 }

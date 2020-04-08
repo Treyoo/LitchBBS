@@ -1,6 +1,10 @@
 package com.litchi.bbs.async;
 
+import com.litchi.bbs.entity.DiscussPost;
+import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.Message;
+import com.litchi.bbs.service.DiscussPostService;
+import com.litchi.bbs.service.ElasticsearchService;
 import com.litchi.bbs.service.MessageService;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.constant.EventTopic;
@@ -25,6 +29,10 @@ public class EventConsumer implements LitchiConst, EventTopic {
     private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private DiscussPostService discussPostService;
+    @Autowired
+    private ElasticsearchService elasticsearchService;
 
     @KafkaListener(topics = {TOPIC_COMMENT, TOPIC_LIKE, TOPIC_FOLLOW})
     public void handleSNSMsg(ConsumerRecord<String, String> record) {
@@ -51,5 +59,21 @@ public class EventConsumer implements LitchiConst, EventTopic {
         }
         message.setContent(LitchiUtil.toJSONString(content));//借用内容字段存储通知数据
         messageService.addMessage(message);
+    }
+
+    @KafkaListener(topics = {TOPIC_PUBLISH_DISCUSS})
+    public void handlePublishDiscuss(ConsumerRecord<String, String> record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息内容为空！");
+            return;
+        }
+        Event event = LitchiUtil.parseObject(record.value(), Event.class);
+        //同步更新到Elasticsearch
+        if (EntityType.DISCUSS_POST != event.getEntityType()) {
+            logger.error("实体类型不是帖子！");
+            return;
+        }
+        DiscussPost post = discussPostService.selectById(event.getEntityId());
+        elasticsearchService.saveDiscuss(post);
     }
 }

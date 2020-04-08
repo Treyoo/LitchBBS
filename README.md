@@ -23,6 +23,11 @@ sudo apt-get install redis-server
 先启动ZooKeeper:> bin/zookeeper-server-start.sh config/zookeeper.properties
 再启动Kafka-Server:> bin/kafka-server-start.sh config/server.properties
 
+###安装Elasticsearch v6.8.6
+下载地址：https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6
+解压，设置%es安装目录%/bin到环境变量
+编辑%es安装目录%/config/elasticsearch.yml文件，设置cluster.name='litchi-bbs'
+终端执行`elasticsearch`命令启动
 
 
 
@@ -62,3 +67,8 @@ e.g. bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replicatio
 所以最后看到ElasticsearchProperties使用了默认的clusterName，我配置的属性名根本没起作用！！
 修改spring.data.elasticsearch.cluster=litchi-bbs为spring.data.elasticsearch.cluster-name=litchi-bbsyanwenz
 
+
+
+[下载地址是]: https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6
+
+[]: https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6

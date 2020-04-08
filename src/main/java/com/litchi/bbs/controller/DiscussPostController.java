@@ -1,11 +1,14 @@
 package com.litchi.bbs.controller;
 
+import com.litchi.bbs.async.Event;
+import com.litchi.bbs.async.EventProducer;
 import com.litchi.bbs.entity.*;
 import com.litchi.bbs.service.CommentService;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.LikeService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.constant.EventTopic;
 import com.litchi.bbs.util.constant.LikeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,32 +37,29 @@ public class DiscussPostController implements LikeStatus {
     private CommentService commentService;
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private EventProducer eventProducer;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(@RequestParam("title") String title,
                                  @RequestParam("content") String content) {
-        try {
-            DiscussPost discussPost = new DiscussPost();
-            discussPost.setTitle(title);
-            discussPost.setContent(content);
-            discussPost.setCreateTime(new Date());
-            discussPost.setCommentCount(0);
-            if (hostHolder.get() == null) {
-                return LitchiUtil.getJSONString(999);
-            } else {
-                discussPost.setUserId(hostHolder.get().getId());
-            }
-            if (discussPostService.addDiscussPost(discussPost) > 0) {
-//                eventProducer.fireEvent(new Event(EventType.QUESTION).setActorId(discussPost.getUserId())
-//                        .setEntityType(EntityType.QUESTION).setEntityId(discussPost.getId())
-//                        .setEntityOwnerId(discussPost.getUserId()).setExt("title", title)
-//                        .setExt("content", content));
-                logger.debug("新增discuss ID:" + discussPost.getId());
-                return LitchiUtil.getJSONString(0, "发布帖子成功");
-            }
-        } catch (Exception e) {
-            logger.error("添加帖子出现异常" + e.getMessage());
+        DiscussPost discussPost = new DiscussPost();
+        discussPost.setTitle(title);
+        discussPost.setContent(content);
+        discussPost.setCreateTime(new Date());
+        discussPost.setCommentCount(0);
+        discussPost.setUserId(hostHolder.get().getId());
+        if (discussPostService.addDiscussPost(discussPost) > 0) {
+            eventProducer.fireEvent(new Event(EventTopic.TOPIC_PUBLISH_DISCUSS)
+                    .setActorId(discussPost.getUserId())
+                    .setEntityType(EntityType.DISCUSS_POST)
+                    .setEntityId(discussPost.getId())
+                    .setEntityOwnerId(discussPost.getUserId())
+                    .setExt("title", title)
+                    .setExt("content", content));
+            logger.debug("新增discuss ID:" + discussPost.getId());
+            return LitchiUtil.getJSONString(0, "发布帖子成功");
         }
         return LitchiUtil.getJSONString(1, "发布帖子失败");
     }
@@ -67,7 +67,7 @@ public class DiscussPostController implements LikeStatus {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String detail(@PathVariable("id") int id, Model model, Page page) {
         User loginUser = hostHolder.get();
-        DiscussPost post = discussPostService.selectByid(id);
+        DiscussPost post = discussPostService.selectById(id);
         // 评论分页信息
         page.setLimit(5);
         page.setPath("/discuss/" + id);

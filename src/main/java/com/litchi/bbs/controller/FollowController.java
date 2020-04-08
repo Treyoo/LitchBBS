@@ -64,7 +64,7 @@ public class FollowController implements EventTopic {
     @RequestMapping(path = {"/followDiscuss"}, method = RequestMethod.POST)
     @ResponseBody
     public String followDiscuss(@RequestParam("postId") int postId) {
-        DiscussPost post = discussPostService.selectByid(postId);
+        DiscussPost post = discussPostService.selectById(postId);
         if (post == null) {
             return LitchiUtil.getJSONString(1, "帖子不存在！");
         }
