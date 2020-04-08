@@ -8,6 +8,7 @@ import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.LikeService;
 import com.litchi.bbs.service.UserService;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.constant.DiscussPostConst;
 import com.litchi.bbs.util.constant.EventTopic;
 import com.litchi.bbs.util.constant.LikeStatus;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/discuss")
-public class DiscussPostController implements LikeStatus {
+public class DiscussPostController implements LikeStatus, DiscussPostConst {
     private static final Logger logger = LoggerFactory.getLogger(DiscussPostController.class);
     @Autowired
     private DiscussPostService discussPostService;
@@ -154,9 +155,48 @@ public class DiscussPostController implements LikeStatus {
         return followers;
     }
 
-    @RequestMapping(path = "/delete", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE})
-    public String deleteDiscussPost() {
-        //TODO 实现
-        return "site/my-post";
+    @DeleteMapping(path = "/delete")
+    @ResponseBody
+    public String delete(@RequestParam("id") int id) {
+        int status = discussPostService.getDiscussStatus(id);
+        if (status == STATUS_DELETED) {
+            discussPostService.updateDiscussStatus(id, STATUS_NORMAL);
+            return LitchiUtil.getJSONString(0, "撤销删除成功");
+        } else {
+            discussPostService.updateDiscussStatus(id, STATUS_DELETED);
+            return LitchiUtil.getJSONString(0, "删除成功");
+        }
+    }
+
+    @PostMapping(path = "/top")
+    @ResponseBody
+    public String top(@RequestParam("id") int id) {
+        int type = discussPostService.getDiscussType(id);
+        String msg = null;
+        if (type == TYPE_NORMAL) {
+            discussPostService.updateDiscussType(id, TYPE_TOP);
+            msg = "置顶成功";
+        } else if (type == TYPE_TOP) {
+            discussPostService.updateDiscussType(id, TYPE_NORMAL);
+            msg = "取消置顶成功";
+        } else {
+            throw new RuntimeException("数据异常，未识别帖子类型：%d" + type);
+        }
+        return LitchiUtil.getJSONString(0, msg);
+    }
+
+    @PostMapping(path = "/highlight")
+    @ResponseBody
+    public String highlight(@RequestParam("id") int id) {
+        int status = discussPostService.getDiscussStatus(id);
+        if (status == STATUS_NORMAL) {
+            discussPostService.updateDiscussStatus(id, STATUS_HIGHLIGHT);
+            return LitchiUtil.getJSONString(0, "加精成功");
+        } else if (status == STATUS_HIGHLIGHT) {
+            discussPostService.updateDiscussStatus(id, STATUS_NORMAL);
+            return LitchiUtil.getJSONString(0, "取消加精成功");
+        } else {
+            return LitchiUtil.getJSONString(1, "加精失败");
+        }
     }
 }

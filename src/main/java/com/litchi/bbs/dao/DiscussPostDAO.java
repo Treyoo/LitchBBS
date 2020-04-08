@@ -14,6 +14,7 @@ public interface DiscussPostDAO {
     List<DiscussPost> selectDiscussPosts(@Param("userId") int userId,
                                          @Param("offset") int offset,
                                          @Param("limit") int limit);
+
     int getDiscussPostRows(@Param("userId") int userId);
 
     int addDiscussPost(DiscussPost discussPost);
@@ -21,7 +22,15 @@ public interface DiscussPostDAO {
     DiscussPost selectById(int id);
 
     List<DiscussPost> selectLatestDiscussPosts(@Param("userId") int userId, @Param("offset") int offset,
-                                         @Param("limit") int limit);
+                                               @Param("limit") int limit);
 
     void updateCommentCount(@Param("id") int id, @Param("commentCount") int commentCount);
+
+    void updateDiscussType(@Param("id") int id, @Param("type") int type);
+
+    void updateDiscussStatus(@Param("id") int id, @Param("status") int status);
+
+    int selectDiscussType(@Param("id") int id);
+
+    int selectDiscussStatus(@Param("id") int id);
 }

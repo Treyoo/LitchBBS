@@ -55,9 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Litc
                 AUTHORITY_USER
         ).antMatchers(
                 "/discuss/top",
-                "/discuss/wonderful"
+                "/discuss/highlight"
         ).hasAnyAuthority(
-                AUTHORITY_MODERATOR
+                AUTHORITY_MODERATOR,
+                AUTHORITY_ADMIN
         ).antMatchers(
                 "/discuss/delete",
                 "/data/**",

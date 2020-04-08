@@ -49,7 +49,23 @@ public class DiscussPostService {
         return discussPostDAO.addDiscussPost(discussPost) > 0 ? discussPost.getId() : 0;
     }
 
-    public DiscussPost selectById(int id){
+    public DiscussPost selectById(int id) {
         return discussPostDAO.selectById(id);
+    }
+
+    public void updateDiscussType(int postId, int type) {
+        discussPostDAO.updateDiscussType(postId, type);
+    }
+
+    public void updateDiscussStatus(int postId, int status) {
+        discussPostDAO.updateDiscussStatus(postId, status);
+    }
+
+    public int getDiscussType(int postId) {
+        return discussPostDAO.selectDiscussType(postId);
+    }
+
+    public int getDiscussStatus(int postId) {
+        return discussPostDAO.selectDiscussStatus(postId);
     }
 }
