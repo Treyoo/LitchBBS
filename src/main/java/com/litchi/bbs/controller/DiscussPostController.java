@@ -161,6 +161,7 @@ public class DiscussPostController implements LikeStatus, DiscussPostConst {
         int status = discussPostService.getDiscussStatus(id);
         if (status == STATUS_DELETED) {
             discussPostService.updateDiscussStatus(id, STATUS_NORMAL);
+            //TODO fireEvent
             return LitchiUtil.getJSONString(0, "撤销删除成功");
         } else {
             discussPostService.updateDiscussStatus(id, STATUS_DELETED);
