@@ -158,13 +158,24 @@ public class DiscussPostController implements LikeStatus, DiscussPostConst {
     @DeleteMapping(path = "/delete")
     @ResponseBody
     public String delete(@RequestParam("id") int id) {
-        int status = discussPostService.getDiscussStatus(id);
-        if (status == STATUS_DELETED) {
+        DiscussPost discussPost = discussPostService.selectById(id);
+        if (discussPost.getStatus() == STATUS_DELETED) {
             discussPostService.updateDiscussStatus(id, STATUS_NORMAL);
-            //TODO fireEvent
+            eventProducer.fireEvent(new Event(EventTopic.TOPIC_PUBLISH_DISCUSS)
+                    .setActorId(discussPost.getUserId())
+                    .setEntityType(EntityType.DISCUSS_POST)
+                    .setEntityId(discussPost.getId())
+                    .setEntityOwnerId(discussPost.getUserId())
+                    .setExt("title", discussPost.getTitle())
+                    .setExt("content", discussPost.getContent()));
             return LitchiUtil.getJSONString(0, "撤销删除成功");
         } else {
             discussPostService.updateDiscussStatus(id, STATUS_DELETED);
+            eventProducer.fireEvent(new Event(EventTopic.TOPIC_DELETE_DISCUSS)
+                    .setActorId(discussPost.getUserId())
+                    .setEntityType(EntityType.DISCUSS_POST)
+                    .setEntityId(discussPost.getId())
+                    .setEntityOwnerId(discussPost.getUserId()));
             return LitchiUtil.getJSONString(0, "删除成功");
         }
     }

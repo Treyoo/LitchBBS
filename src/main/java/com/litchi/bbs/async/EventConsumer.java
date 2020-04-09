@@ -76,4 +76,19 @@ public class EventConsumer implements LitchiConst, EventTopic {
         DiscussPost post = discussPostService.selectById(event.getEntityId());
         elasticsearchService.saveDiscuss(post);
     }
+
+    @KafkaListener(topics = {TOPIC_DELETE_DISCUSS})
+    public void handleDeleteDiscuss(ConsumerRecord<String, String> record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息内容为空！");
+            return;
+        }
+        Event event = LitchiUtil.parseObject(record.value(), Event.class);
+        //同步更新到Elasticsearch
+        if (EntityType.DISCUSS_POST != event.getEntityType()) {
+            logger.error("实体类型不是帖子！");
+            return;
+        }
+        elasticsearchService.deleteDiscussById(event.getEntityId());
+    }
 }

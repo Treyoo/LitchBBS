@@ -72,3 +72,25 @@ e.g. bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replicatio
 [下载地址是]: https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6
 
 []: https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6
+
+### 4.发布帖子并更新到Elasticsearch，下一次启动应用报错
+Error creating bean with name 'eventConsumer': Unsatisfied dependency expressed through field 'elasticsearchService';
+…………
+Caused by: java.lang.IllegalArgumentException: mapper [createTime] of different type, current_type [long], merged_type [date]
+看字面意思是类型不匹配，可以看出是从eventConsumer里报出来的，里面调用elasticsearchService出错。
+可能和我上一次粗暴地Ctrl+C关闭es和kafka有关？
+知识盲区，不知道怎么优雅地解决。
+粗暴解决：既然是从eventConsumer里报出来的，那就是说Kafka的publich_discuss里还残留数据没被消费，去手动把它删了！
+手动删除kafka topic
+1.修改配置文件config/server.properties，添加
+`auto.create.topics.enable=false`
+`delete.topic.enable=true`
+2.重启kafka
+3.执行`bin/kafka-topics.sh --delete --zookeeper 127.0.0.1:2181 --topic publish_discuss`命令删除topic
+4.删除kafka存储目录（server.properties文件log.dirs配置，这里是"/tmp/kafka-logs"）相关topic的数据目录
+5.执行`bin/kafka-topics.sh --list --bootstrap-server localhost:9092`看删除topic成功没有
+6.恢复配置文件config/server.properties并重启kafka(最好重启一下电脑！！)
+参考:https://www.jianshu.com/p/423e92e1e1fd
+
+
+
