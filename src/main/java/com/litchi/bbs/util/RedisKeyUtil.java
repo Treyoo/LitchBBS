@@ -20,6 +20,8 @@ public class RedisKeyUtil {
     private static final String BIZ_TIMELINE = "TIMELINE";
     private static final String LOGIN_TOKEN = "LOGIN_TOKEN";
     private static final String USER = "USER";
+    private static final String UV = "UV";//Unique Visitor
+    private static final String DAU = "DAU";//Daily Active User
 
     public static String getBizLikeKey(int entityType, int entityId) {
         return BIZ_LIKE + SPLIT + entityType + SPLIT + entityId;
@@ -73,5 +75,17 @@ public class RedisKeyUtil {
 
     public static String getUserKey(int userId) {
         return USER + SPLIT + userId;
+    }
+
+    public static String getUVKey(String date) {
+        return UV + SPLIT + date;
+    }
+
+    public static String getDAUKey(String date) {
+        return DAU + SPLIT + date;
+    }
+
+    public static String getDAUKey(String begin, String end) {
+        return DAU + SPLIT + begin + SPLIT + end;
     }
 }

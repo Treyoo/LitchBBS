@@ -3,6 +3,7 @@ package com.litchi.bbs.config;
 
 import com.litchi.bbs.interceptor.MyAnnotationInterceptor;
 import com.litchi.bbs.interceptor.PassportInterceptor;
+import com.litchi.bbs.interceptor.StatisticInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,11 +17,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 public class LitchiBBSConfiguration implements WebMvcConfigurer {
     @Autowired
-    PassportInterceptor passportInterceptor;
+    private PassportInterceptor passportInterceptor;
     /*@Autowired
     LoginRequiredInterceptor loginRequiredInterceptor;*///已使用使用Spring Security替代
     @Autowired
-    MyAnnotationInterceptor myAnnotationInterceptor;
+    private MyAnnotationInterceptor myAnnotationInterceptor;
+    @Autowired
+    private StatisticInterceptor statisticInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -35,6 +38,8 @@ public class LitchiBBSConfiguration implements WebMvcConfigurer {
 //                .excludePathPatterns("/**/*.css","/**/*.png","/**/*.jpg","/**/*.jpeg");
 
         registry.addInterceptor(myAnnotationInterceptor)
+                .excludePathPatterns("/**/*.css","/**/*.png","/**/*.jpg","/**/*.jpeg");
+        registry.addInterceptor(statisticInterceptor)
                 .excludePathPatterns("/**/*.css","/**/*.png","/**/*.jpg","/**/*.jpeg");
     }
 }
