@@ -1,12 +1,23 @@
 package com.litchi.bbs.service;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.litchi.bbs.dao.DiscussPostDAO;
 import com.litchi.bbs.entity.DiscussPost;
+import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author cuiwj
@@ -14,16 +25,66 @@ import java.util.List;
  */
 @Service
 public class DiscussPostService {
+    private static final Logger logger = LoggerFactory.getLogger(DiscussPostService.class);
     @Autowired
     private DiscussPostDAO discussPostDAO;
     @Autowired
     private SensitiveService sensitiveService;
+    @Value("${caffeine.posts.cache.max-size}")
+    private int cacheMaxSize;
+    @Value("${caffeine.posts.cache.expire-seconds}")
+    private long cacheExpireSeconds;
+
+    private LoadingCache<String, List<DiscussPost>> postsCache;
+    private LoadingCache<Integer, Integer> postsRowsCache;
+
+    @PostConstruct
+    private void init() {
+        //初始化帖子Caffeine缓存
+        this.postsCache = Caffeine.newBuilder()
+                .maximumSize(cacheMaxSize)
+                .expireAfterWrite(cacheExpireSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<String, List<DiscussPost>>() {
+                    @Nullable
+                    @Override
+                    public List<DiscussPost> load(@NonNull String key) throws Exception {
+                        if (StringUtils.isBlank(key)) {
+                            throw new IllegalArgumentException("key不能为空");
+                        }
+                        String[] params = key.split(":");
+                        if (params.length != 2) {
+                            throw new IllegalArgumentException("key格式错误");
+                        }
+                        int offset = Integer.parseInt(params[0]);
+                        int limit = Integer.parseInt(params[1]);
+                        //TODO 从二级缓存redis读数据
+                        logger.info("Load DiscussPost from DB.");
+                        return discussPostDAO.selectDiscussPosts(0, offset, limit);
+                    }
+                });
+        //初始化帖子总数Caffeine缓存
+        this.postsRowsCache = Caffeine.newBuilder()
+                .maximumSize(cacheMaxSize)
+                .expireAfterWrite(cacheExpireSeconds, TimeUnit.SECONDS)
+                .build(key -> {
+                    logger.info("Load DiscussPost rows from DB.");
+                    return discussPostDAO.getDiscussPostRows(key);
+                });
+    }
 
     public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit) {
+        if (userId == 0) {//访问首页时传入userId是0
+            return postsCache.get(offset + ":" + limit);
+        }
+        logger.info("Load DiscussPost from DB.");
         return discussPostDAO.selectDiscussPosts(userId, offset, limit);
     }
 
     public int getDiscussRows(int userId) {
+        if (userId == 0) {
+            return postsRowsCache.get(userId);
+        }
+        logger.info("Load DiscussPost rows from DB.");
         return discussPostDAO.getDiscussPostRows(userId);
     }
 

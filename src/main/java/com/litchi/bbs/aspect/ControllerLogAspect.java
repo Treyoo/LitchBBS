@@ -23,6 +23,7 @@ import java.util.Date;
 @Component
 @Aspect
 public class ControllerLogAspect {
+
     private static final Logger logger = LoggerFactory.getLogger(ControllerLogAspect.class);
 
     @Pointcut("execution(public * com.litchi.bbs.controller.*.*(..))")
@@ -41,7 +42,7 @@ public class ControllerLogAspect {
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(start);
         String target = point.getSignature().getDeclaringTypeName() + "." + point.getSignature().getName();
-        logger.info(String.format("用户[%s],在[%s],访问了[%s]方法,耗时[%d]ms.", ip, now, target, consumeTime));
+//        logger.debug(String.format("用户[%s],在[%s],访问了[%s]方法,耗时[%d]ms.", ip, now, target, consumeTime));
         return templatePath;
     }
 }

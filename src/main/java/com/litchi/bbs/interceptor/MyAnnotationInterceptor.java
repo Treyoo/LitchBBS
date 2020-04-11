@@ -29,8 +29,8 @@ public class MyAnnotationInterceptor implements HandlerInterceptor {
             MyAnnotation myAnnotation = method.getAnnotation(MyAnnotation.class);//获取方法的注解
             if (myAnnotation != null) {
                 //do something
-                logger.debug(method.getName() + "方法被调用，你看到此日志是因为该方法使用了自定义注解："
-                        + myAnnotation.toString());
+                /*logger.debug(method.getName() + "方法被调用，你看到此日志是因为该方法使用了自定义注解："
+                        + myAnnotation.toString());*/
             }
         }
         return true;
