@@ -26,7 +26,7 @@ public class CaffeineTests {
     @Autowired
     private DiscussPostService postService;
 
-    @Test
+//    @Test
     public void initDataForTest() {//构造5万条帖子数据用于测试
         final int COUNT = 50000;
         Random random = new Random();

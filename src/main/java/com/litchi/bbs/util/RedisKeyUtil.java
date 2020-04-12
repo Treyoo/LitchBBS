@@ -22,6 +22,8 @@ public class RedisKeyUtil {
     private static final String USER = "USER";
     private static final String UV = "UV";//Unique Visitor
     private static final String DAU = "DAU";//Daily Active User
+    private static final String POSTS = "POSTS";
+    private static final String POST_ROWS = "POST_ROWS";
 
     public static String getBizLikeKey(int entityType, int entityId) {
         return BIZ_LIKE + SPLIT + entityType + SPLIT + entityId;
@@ -87,5 +89,14 @@ public class RedisKeyUtil {
 
     public static String getDAUKey(String begin, String end) {
         return DAU + SPLIT + begin + SPLIT + end;
+    }
+
+    public static String getPostsKey(int offset, int limit) {
+        //帖子列表一页缓存的key
+        return POSTS + SPLIT + offset + SPLIT + limit;
+    }
+
+    public static String getPostRowsKey(int userId) {
+        return POST_ROWS + SPLIT + userId;
     }
 }

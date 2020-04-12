@@ -41,6 +41,8 @@ public class UserService implements LitchiConst {
     JedisAdapter jedisAdapter;
     @Value("${bbs.path.domain}")
     private String domain;
+    @Value("${redis.user.cache.expire-seconds}")
+    private int redisCacheExpireSeconds;
 
     public User selectUserById(int userId) {
         User user = getUserCache(userId);//从redis缓存获取提升效率
@@ -183,7 +185,7 @@ public class UserService implements LitchiConst {
     //缓存用户
     private void initUserCache(@NotNull User user) {
         String redisKey = RedisKeyUtil.getUserKey(user.getId());
-        jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(user), 1800);
+        jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(user), redisCacheExpireSeconds);
     }
 
     //从缓存获取用户

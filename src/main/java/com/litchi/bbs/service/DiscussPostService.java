@@ -1,10 +1,14 @@
 package com.litchi.bbs.service;
 
+import com.alibaba.fastjson.TypeReference;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.litchi.bbs.dao.DiscussPostDAO;
 import com.litchi.bbs.entity.DiscussPost;
+import com.litchi.bbs.util.JedisAdapter;
+import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -30,10 +34,14 @@ public class DiscussPostService {
     private DiscussPostDAO discussPostDAO;
     @Autowired
     private SensitiveService sensitiveService;
+    @Autowired
+    private JedisAdapter jedisAdapter;
     @Value("${caffeine.posts.cache.max-size}")
-    private int cacheMaxSize;
+    private int caffeineCacheMaxSize;
     @Value("${caffeine.posts.cache.expire-seconds}")
-    private long cacheExpireSeconds;
+    private long caffeineCacheExpireSeconds;
+    @Value("${redis.posts.cache.expire-seconds}")
+    private int redisCacheExpireSeconds;
 
     private LoadingCache<String, List<DiscussPost>> postsCache;
     private LoadingCache<Integer, Integer> postsRowsCache;
@@ -42,8 +50,8 @@ public class DiscussPostService {
     private void init() {
         //初始化帖子Caffeine缓存
         this.postsCache = Caffeine.newBuilder()
-                .maximumSize(cacheMaxSize)
-                .expireAfterWrite(cacheExpireSeconds, TimeUnit.SECONDS)
+                .maximumSize(caffeineCacheMaxSize)
+                .expireAfterWrite(caffeineCacheExpireSeconds, TimeUnit.SECONDS)
                 .build(new CacheLoader<String, List<DiscussPost>>() {
                     @Nullable
                     @Override
@@ -57,26 +65,21 @@ public class DiscussPostService {
                         }
                         int offset = Integer.parseInt(params[0]);
                         int limit = Integer.parseInt(params[1]);
-                        //TODO 从二级缓存redis读数据
-                        logger.info("Load DiscussPost from DB.");
-                        return discussPostDAO.selectDiscussPosts(0, offset, limit);
+                        return getPostsFromRedisCache(offset, limit);
                     }
                 });
         //初始化帖子总数Caffeine缓存
         this.postsRowsCache = Caffeine.newBuilder()
-                .maximumSize(cacheMaxSize)
-                .expireAfterWrite(cacheExpireSeconds, TimeUnit.SECONDS)
-                .build(key -> {
-                    logger.info("Load DiscussPost rows from DB.");
-                    return discussPostDAO.getDiscussPostRows(key);
-                });
+                .maximumSize(caffeineCacheMaxSize)
+                .expireAfterWrite(caffeineCacheExpireSeconds, TimeUnit.SECONDS)
+                .build(this::getPostRowsFromRedisCache);
     }
 
     public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit) {
         if (userId == 0) {//访问首页时传入userId是0
             return postsCache.get(offset + ":" + limit);
         }
-        logger.info("Load DiscussPost from DB.");
+        logger.debug("Load DiscussPost from DB.");
         return discussPostDAO.selectDiscussPosts(userId, offset, limit);
     }
 
@@ -84,7 +87,7 @@ public class DiscussPostService {
         if (userId == 0) {
             return postsRowsCache.get(userId);
         }
-        logger.info("Load DiscussPost rows from DB.");
+        logger.debug("Load DiscussPost rows from DB.");
         return discussPostDAO.getDiscussPostRows(userId);
     }
 
@@ -128,5 +131,39 @@ public class DiscussPostService {
 
     public int getDiscussStatus(int postId) {
         return discussPostDAO.selectDiscussStatus(postId);
+    }
+
+    /**
+     * 从redis缓存获取帖子列表,若没有则自动初始化redis缓存
+     */
+    private List<DiscussPost> getPostsFromRedisCache(int offset, int limit) {
+        logger.debug("Load DiscussPost from redis.");
+        String redisKey = RedisKeyUtil.getPostsKey(offset, limit);
+        String result = jedisAdapter.get(redisKey);
+        if (result == null) {//初始化redis缓存
+            //TODO 实现限制缓存数量
+            logger.debug("Load DiscussPost list from DB.");
+            List<DiscussPost> posts = discussPostDAO.selectDiscussPosts(0, offset, limit);
+            jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(posts), redisCacheExpireSeconds);
+            return posts;
+        }
+        return LitchiUtil.parseObject(result, new TypeReference<List<DiscussPost>>() {
+        });
+    }
+
+    /**
+     * 从redis缓存获取帖子总数,若没有则自动初始化redis缓存
+     */
+    private int getPostRowsFromRedisCache(int userId) {
+        logger.debug("Load DiscussPost rows from redis.");
+        String redisKey = RedisKeyUtil.getPostRowsKey(userId);
+        String result = jedisAdapter.get(redisKey);
+        if (result == null) {//初始化redis缓存
+            logger.debug("Load DiscussPost rows from DB.");
+            int rows = discussPostDAO.getDiscussPostRows(userId);
+            jedisAdapter.setex(redisKey, String.valueOf(rows), redisCacheExpireSeconds);
+            return rows;
+        }
+        return Integer.parseInt(result);
     }
 }
