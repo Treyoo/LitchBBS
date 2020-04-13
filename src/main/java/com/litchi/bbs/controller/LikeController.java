@@ -5,7 +5,9 @@ import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.service.CommentService;
 import com.litchi.bbs.service.LikeService;
+import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.RedisKeyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,15 @@ import java.util.Map;
 public class LikeController {
     private static final Logger logger = LoggerFactory.getLogger(LikeController.class);
     @Autowired
-    LikeService likeService;
+    private LikeService likeService;
     @Autowired
-    HostHolder hostHolder;
+    private HostHolder hostHolder;
     //    @Autowired
 //    EventProducer eventProducer;
     @Autowired
-    CommentService commentService;
+    private CommentService commentService;
+    @Autowired
+    private JedisAdapter jedisAdapter;
 
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
@@ -48,6 +52,10 @@ public class LikeController {
                     .setEntityId(entityId)
                     .setEntityOwnerId(comment.getUserId())
                     .setExt("questionId",String.valueOf(comment.getEntityId())));*/
+        }
+        if (EntityType.DISCUSS_POST == entityType) {
+            //记录该帖子id用于后续计算帖子分数
+            jedisAdapter.sadd(RedisKeyUtil.getPostNeedCalScoreKey(), String.valueOf(entityId));
         }
         Map<String, Object> res = new HashMap<>();
         res.put("likeCount", likeCount);

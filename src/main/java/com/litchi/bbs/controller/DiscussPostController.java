@@ -7,7 +7,9 @@ import com.litchi.bbs.service.CommentService;
 import com.litchi.bbs.service.DiscussPostService;
 import com.litchi.bbs.service.LikeService;
 import com.litchi.bbs.service.UserService;
+import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
+import com.litchi.bbs.util.RedisKeyUtil;
 import com.litchi.bbs.util.constant.DiscussPostConst;
 import com.litchi.bbs.util.constant.EventTopic;
 import com.litchi.bbs.util.constant.LikeStatus;
@@ -40,6 +42,8 @@ public class DiscussPostController implements LikeStatus, DiscussPostConst {
     private LikeService likeService;
     @Autowired
     private EventProducer eventProducer;
+    @Autowired
+    private JedisAdapter jedisAdapter;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -59,6 +63,9 @@ public class DiscussPostController implements LikeStatus, DiscussPostConst {
                     .setEntityOwnerId(discussPost.getUserId())
                     .setExt("title", title)
                     .setExt("content", content));
+            //记录该帖子id用于后续计算分数(新增要计算，得到默认分数)
+            String redisKey = RedisKeyUtil.getPostNeedCalScoreKey();
+            jedisAdapter.sadd(redisKey, String.valueOf(discussPost.getId()));
             logger.debug("新增discuss ID:" + discussPost.getId());
             return LitchiUtil.getJSONString(0, "发布帖子成功");
         }
@@ -203,9 +210,12 @@ public class DiscussPostController implements LikeStatus, DiscussPostConst {
         int status = discussPostService.getDiscussStatus(id);
         if (status == STATUS_NORMAL) {
             discussPostService.updateDiscussStatus(id, STATUS_HIGHLIGHT);
+            //记录该帖子id用于后续计算分数
+            jedisAdapter.sadd(RedisKeyUtil.getPostNeedCalScoreKey(),String.valueOf(id));
             return LitchiUtil.getJSONString(0, "加精成功");
         } else if (status == STATUS_HIGHLIGHT) {
             discussPostService.updateDiscussStatus(id, STATUS_NORMAL);
+            jedisAdapter.sadd(RedisKeyUtil.getPostNeedCalScoreKey(),String.valueOf(id));
             return LitchiUtil.getJSONString(0, "取消加精成功");
         } else {
             return LitchiUtil.getJSONString(1, "加精失败");

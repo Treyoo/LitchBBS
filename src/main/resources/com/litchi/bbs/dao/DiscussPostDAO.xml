@@ -22,7 +22,12 @@
         <if test="userId!=0">
             and user_id = #{userId}
         </if>
-        order by type desc, create_time desc
+        <if test="orderMode==0">
+            order by type desc, create_time desc
+        </if>
+        <if test="orderMode==1">
+            order by type desc, score desc, create_time desc
+        </if>
         limit #{offset}, #{limit}
     </select>
 
@@ -42,18 +47,6 @@
         from
         <include refid="table"/>
         where id=#{id}
-    </select>
-
-    <select id="selectLatestDiscussPosts" resultType="DiscussPost">
-        SELECT
-        <include refid="selectFields"/>
-        FROM
-        <include refid="table"/>
-        <if test="userId != 0">
-            WHERE user_id = #{userId}
-        </if>
-        ORDER BY id DESC
-        LIMIT #{offset},#{limit}
     </select>
 
     <insert id="addDiscussPost" useGeneratedKeys="true" keyProperty="id">
@@ -80,6 +73,12 @@
         update
         <include refid="table"/>
         set status=#{status} where id=#{id};
+    </update>
+
+    <update id="updateDiscussScore">
+        update
+        <include refid="table"/>
+        set score=#{score} where id=#{id};
     </update>
 
     <select id="selectDiscussType" resultType="int">

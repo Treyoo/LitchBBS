@@ -115,6 +115,15 @@ public class JedisAdapter {
         }
     }
 
+    public String spop(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.spop(key);
+        } catch (Exception e) {
+            logger.error("Jedis发生异常" + e.getMessage());
+            return null;
+        }
+    }
+
     //Lists相关
     public long lpush(String key, String value) {
         try (Jedis jedis = jedisPool.getResource()) {

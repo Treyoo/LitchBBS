@@ -26,4 +26,14 @@ public interface DiscussPostConst {
      * 删除状态
      */
     int STATUS_DELETED = 2;
+
+    /**
+     * 帖子列表按发表时间倒序排序
+     */
+    int ORDER_BY_CREATE_TIME = 0;
+
+    /**
+     * 帖子列表按帖子分数倒序排序
+     */
+    int ORDER_BY_SCORE = 1;
 }

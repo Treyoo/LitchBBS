@@ -1,6 +1,7 @@
 package com.litchi.bbs.dao;
 
 import com.litchi.bbs.entity.DiscussPost;
+import com.litchi.bbs.util.constant.DiscussPostConst;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,13 +19,13 @@ import java.util.List;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DiscussPostDAOTest {
+public class DiscussPostDAOTest implements DiscussPostConst {
     @Autowired
     private DiscussPostDAO discussPostDAO;
 
     @Test
     public void testSelectDiscussPost() {
-        List<DiscussPost> list = discussPostDAO.selectDiscussPosts(0, 1, 3);
+        List<DiscussPost> list = discussPostDAO.selectDiscussPosts(0, 1, 3, ORDER_BY_CREATE_TIME);
         Assert.assertNotNull(list);
         for (DiscussPost discussPost : list) {
             System.out.println(discussPost.getTitle());
@@ -50,11 +51,5 @@ public class DiscussPostDAOTest {
         discussPostDAO.updateCommentCount(282, 861);
         Assert.assertEquals(861,
                 discussPostDAO.selectById(282).getCommentCount());
-    }
-
-    @Test
-    public void testSelectLatestDiscussPost(){
-        List<DiscussPost> discussPosts = discussPostDAO.selectLatestDiscussPosts(100,0,20);
-        Assert.assertFalse(discussPosts.isEmpty());
     }
 }

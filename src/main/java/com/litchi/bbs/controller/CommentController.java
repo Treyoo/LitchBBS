@@ -1,8 +1,12 @@
 package com.litchi.bbs.controller;
 
 import com.litchi.bbs.entity.Comment;
+import com.litchi.bbs.entity.EntityType;
 import com.litchi.bbs.entity.HostHolder;
 import com.litchi.bbs.service.CommentService;
+import com.litchi.bbs.util.JedisAdapter;
+import com.litchi.bbs.util.RedisKeyUtil;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +28,13 @@ public class CommentController {
     private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
 
     @Autowired
-    HostHolder hostHolder;
+    private HostHolder hostHolder;
     @Autowired
-    CommentService commentService;
+    private CommentService commentService;
 //    @Autowired
 //    EventProducer eventProducer;
+    @Autowired
+    private JedisAdapter jedisAdapter;
 
     @RequestMapping(path = "/add/{postId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("postId") int postId,
@@ -36,25 +42,25 @@ public class CommentController {
                              @RequestParam("entityId") int entityId,
                              @RequestParam("content") String content,
                              @RequestParam(value = "targetId", defaultValue = "0") int targetId) {
-        try {
-            Comment comment = new Comment();
-            comment.setContent(content);
-            comment.setUserId(hostHolder.get().getId());
-            comment.setCreateTime(new Date());
-            comment.setEntityType(entityType);
-            comment.setEntityId(entityId);
-            comment.setTargetId(targetId);
-            comment.setStatus(0);
-            commentService.addComment(comment);
-            //发出事件
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setUserId(hostHolder.get().getId());
+        comment.setCreateTime(new Date());
+        comment.setEntityType(entityType);
+        comment.setEntityId(entityId);
+        comment.setTargetId(targetId);
+        comment.setStatus(0);
+        commentService.addComment(comment);
+        //发出事件
 //            eventProducer.fireEvent(new Event(EventType.COMMENT)
 //                    .setActorId(hostHolder.get().getId())
 //                    .setEntityType(EntityType.QUESTION)
 //                    .setEntityId(postId)
 //                    .setEntityOwnerId(discussPostService.getById(postId).getUserId())
 //            );
-        } catch (Exception e) {
-            logger.error("添加评论失败" + e.getMessage());
+        if (entityType == EntityType.DISCUSS_POST) {
+            //记录该帖子id用于后续计算帖子分数
+            jedisAdapter.sadd(RedisKeyUtil.getPostNeedCalScoreKey(), String.valueOf(entityId));
         }
         return "redirect:/discuss/" + postId;
     }

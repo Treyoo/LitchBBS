@@ -24,6 +24,7 @@ public class RedisKeyUtil {
     private static final String DAU = "DAU";//Daily Active User
     private static final String POSTS = "POSTS";
     private static final String POST_ROWS = "POST_ROWS";
+    private static final String POSTS_NEED_CAL_SCORE = "POSTS_NEED_CAL_SCORE";
 
     public static String getBizLikeKey(int entityType, int entityId) {
         return BIZ_LIKE + SPLIT + entityType + SPLIT + entityId;
@@ -98,5 +99,9 @@ public class RedisKeyUtil {
 
     public static String getPostRowsKey(int userId) {
         return POST_ROWS + SPLIT + userId;
+    }
+
+    public static String getPostNeedCalScoreKey(){
+        return POSTS_NEED_CAL_SCORE;
     }
 }

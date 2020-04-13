@@ -58,15 +58,15 @@ public class ElasticsearchTests {
 
     @Test
     public void testInsertList() {
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(101, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(102, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(103, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(111, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(112, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(131, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(132, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(133, 0, 100/*, 0*/));
-        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(134, 0, 100/*, 0*/));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(101, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(102, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(103, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(111, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(112, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(131, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(132, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(133, 0, 100, 0));
+        discussRepository.saveAll(discussPostDAO.selectDiscussPosts(134, 0, 100, 0));
     }
 
     @Test

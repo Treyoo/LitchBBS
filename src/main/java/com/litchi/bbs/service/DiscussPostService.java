@@ -9,6 +9,7 @@ import com.litchi.bbs.entity.DiscussPost;
 import com.litchi.bbs.util.JedisAdapter;
 import com.litchi.bbs.util.LitchiUtil;
 import com.litchi.bbs.util.RedisKeyUtil;
+import com.litchi.bbs.util.constant.DiscussPostConst;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2020/3/8
  */
 @Service
-public class DiscussPostService {
+public class DiscussPostService implements DiscussPostConst {
     private static final Logger logger = LoggerFactory.getLogger(DiscussPostService.class);
     @Autowired
     private DiscussPostDAO discussPostDAO;
@@ -75,12 +76,16 @@ public class DiscussPostService {
                 .build(this::getPostRowsFromRedisCache);
     }
 
-    public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit) {
-        if (userId == 0) {//访问首页时传入userId是0
+    public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit, int orderMode) {
+        if (userId == 0 && orderMode == ORDER_BY_SCORE) {//访问首页时传入userId是0，仅缓存首页最热帖子列表
             return postsCache.get(offset + ":" + limit);
         }
         logger.debug("Load DiscussPost from DB.");
-        return discussPostDAO.selectDiscussPosts(userId, offset, limit);
+        return discussPostDAO.selectDiscussPosts(userId, offset, limit, orderMode);
+    }
+
+    public List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit) {
+        return this.selectDiscussPosts(userId, offset, limit, ORDER_BY_CREATE_TIME);
     }
 
     public int getDiscussRows(int userId) {
@@ -89,10 +94,6 @@ public class DiscussPostService {
         }
         logger.debug("Load DiscussPost rows from DB.");
         return discussPostDAO.getDiscussPostRows(userId);
-    }
-
-    public List<DiscussPost> selectLatestDiscussPosts(int userId, int offset, int limit) {
-        return discussPostDAO.selectLatestDiscussPosts(userId, offset, limit);
     }
 
     /**
@@ -125,6 +126,10 @@ public class DiscussPostService {
         discussPostDAO.updateDiscussStatus(postId, status);
     }
 
+    public void updateDiscussScore(int postId, double score) {
+        discussPostDAO.updateDiscussScore(postId, score);
+    }
+
     public int getDiscussType(int postId) {
         return discussPostDAO.selectDiscussType(postId);
     }
@@ -143,7 +148,7 @@ public class DiscussPostService {
         if (result == null) {//初始化redis缓存
             //TODO 实现限制缓存数量
             logger.debug("Load DiscussPost list from DB.");
-            List<DiscussPost> posts = discussPostDAO.selectDiscussPosts(0, offset, limit);
+            List<DiscussPost> posts = discussPostDAO.selectDiscussPosts(0, offset, limit, ORDER_BY_SCORE);
             jedisAdapter.setex(redisKey, LitchiUtil.toJSONString(posts), redisCacheExpireSeconds);
             return posts;
         }
