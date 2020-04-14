@@ -50,7 +50,7 @@ public class CaffeineTests {
                     "主人何为言少钱，径须沽取对君酌。\n" +
                     "五花马，千金裘，呼儿将出换美酒，与尔同销万古愁。");
             post.setCreateTime(new Date());
-            post.setScore(Math.random() * 2000);
+            post.setScore(Math.random() * 200);
             postService.addDiscussPost(post);
             if (i % 1000 == 0) {
                 logger.info(String.format("已生成%d/%d条帖子数据.", i, COUNT));

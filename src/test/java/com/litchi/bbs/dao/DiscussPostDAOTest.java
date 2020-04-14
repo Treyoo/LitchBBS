@@ -30,6 +30,12 @@ public class DiscussPostDAOTest implements DiscussPostConst {
         for (DiscussPost discussPost : list) {
             System.out.println(discussPost.getTitle());
         }
+        list = discussPostDAO.selectDiscussPosts(0, 1, 3, ORDER_BY_SCORE);
+        Assert.assertNotNull(list);
+        for (DiscussPost discussPost : list) {
+            System.out.println(String.format("《%s》,type=%d,score=%f", discussPost.getTitle(),
+                    discussPost.getType(), discussPost.getScore()));
+        }
     }
 
     @Test

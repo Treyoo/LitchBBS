@@ -142,7 +142,7 @@ public class DiscussPostService implements DiscussPostConst {
      * 从redis缓存获取帖子列表,若没有则自动初始化redis缓存
      */
     private List<DiscussPost> getPostsFromRedisCache(int offset, int limit) {
-        logger.debug("Load DiscussPost from redis.");
+        logger.debug("Load DiscussPosts from redis.");
         String redisKey = RedisKeyUtil.getPostsKey(offset, limit);
         String result = jedisAdapter.get(redisKey);
         if (result == null) {//初始化redis缓存
