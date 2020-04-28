@@ -51,6 +51,10 @@ public class LitchiUtil {
         return jsonObject.toJSONString();
     }
 
+    public static String getJSONString(Object obj){
+        return JSON.toJSONString(obj);
+    }
+
     /**
      * 计算MD5
      *

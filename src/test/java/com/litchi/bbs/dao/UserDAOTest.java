@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author cuiwj
@@ -29,5 +30,12 @@ public class UserDAOTest {
         userDAO.addUser(user);
         Assert.assertNotEquals(0, user.getId());//测试id自动回填
         Assert.assertNotNull(userDAO.selectByName(username));
+    }
+
+    @Test
+    public void testSelectUsers(){
+        List<User> users = userDAO.selectUsers(0,10);
+        Assert.assertNotNull(users);
+        System.out.println(users);
     }
 }

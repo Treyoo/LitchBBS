@@ -216,4 +216,8 @@ public class UserService implements LitchiConst {
         });
         return list;
     }
+
+    public List<User> selectUsers(int offset, int limit) {
+        return userDAO.selectUsers(offset, limit);
+    }
 }

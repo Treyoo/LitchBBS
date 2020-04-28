@@ -3,6 +3,8 @@ package com.litchi.bbs.dao;
 import com.litchi.bbs.entity.User;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 /**
  * @author cuiwj
  * @date 2020/3/6
@@ -27,6 +29,8 @@ public interface UserDAO {
 
     @Select({"select", SELECT_FIELDS, "from", TABLE_NAME, "where email=#{email}"})
     User selectByEmail(String email);
+
+    List<User> selectUsers(@Param("offset") int offset, @Param("limit") int limit);
 
     @Update({"update", TABLE_NAME, "set password=#{password} where id=#{id}"})
     void updatePassword(User user);
