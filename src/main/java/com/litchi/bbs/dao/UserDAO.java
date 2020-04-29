@@ -32,6 +32,8 @@ public interface UserDAO {
 
     List<User> selectUsers(@Param("offset") int offset, @Param("limit") int limit);
 
+    int getUserRows();
+
     @Update({"update", TABLE_NAME, "set password=#{password} where id=#{id}"})
     void updatePassword(User user);
 

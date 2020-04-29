@@ -21,4 +21,11 @@
         order by id desc
         limit #{offset}, #{limit};
     </select>
+
+    <select id="getUserRows" resultType="int">
+        select
+        count(id)
+        from
+        <include refid="table"/>;
+    </select>
 </mapper>

@@ -6,6 +6,7 @@ import com.litchi.bbs.interceptor.PassportInterceptor;
 import com.litchi.bbs.interceptor.StatisticInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -41,5 +42,19 @@ public class LitchiBBSConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css","/**/*.png","/**/*.jpg","/**/*.jpeg");
         registry.addInterceptor(statisticInterceptor)
                 .excludePathPatterns("/**/*.css","/**/*.png","/**/*.jpg","/**/*.jpeg");
+    }
+
+    /**
+     * 配置允许跨域请求
+     * @param registry
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("GET","POST","PUT","DELETE","HEAD","OPTION")
+                .allowCredentials(true)
+                .maxAge(3600)
+                .allowedHeaders("*");
     }
 }
