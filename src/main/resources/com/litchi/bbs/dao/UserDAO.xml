@@ -28,4 +28,11 @@
         from
         <include refid="table"/>;
     </select>
+
+    <update id="updateUser">
+        update <include refid="table"/>
+        set username=#{username},password=#{password},email=#{email},
+        header_url=#{headerUrl},type=#{type},status=#{status}
+        where id=#{id};
+    </update>
 </mapper>

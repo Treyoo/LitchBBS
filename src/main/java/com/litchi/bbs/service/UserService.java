@@ -224,4 +224,9 @@ public class UserService implements LitchiConst {
     public int getUserRows(){
         return userDAO.getUserRows();
     }
+
+    public void updateUser(User user){
+        user.setPassword(LitchiUtil.MD5(user.getPassword()+user.getSalt()));
+        userDAO.updateUser(user);
+    }
 }

@@ -34,6 +34,8 @@ public interface UserDAO {
 
     int getUserRows();
 
+    void updateUser(User user);
+
     @Update({"update", TABLE_NAME, "set password=#{password} where id=#{id}"})
     void updatePassword(User user);
 
