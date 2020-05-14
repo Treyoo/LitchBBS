@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import UserManage from '../views/UserManage'
-import AddBook from '../views/AddBook'
+import AddUser from '../views/AddUser'
 import Index from '../views/Index'
 import BookUpdate from '../views/BookUpdate'
 
@@ -21,9 +21,9 @@ const routes = [
         component:UserManage
       },
       {
-        path:"/AddBook",
+        path:"/AddUser",
         name:"添加用户",
-        component:AddBook
+        component:AddUser
       }
     ]
   },

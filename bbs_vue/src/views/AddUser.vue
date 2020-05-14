@@ -1,12 +1,12 @@
 <template>
     <el-form style="width: 60%" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
 
-        <el-form-item label="图书名称" prop="name">
-            <el-input v-model="ruleForm.name"></el-input>
+        <el-form-item label="用户名" prop="username">
+            <el-input v-model="ruleForm.username"></el-input>
         </el-form-item>
 
-        <el-form-item label="作者" prop="author">
-            <el-input v-model="ruleForm.author"></el-input>
+        <el-form-item label="密码" prop="password">
+            <el-input v-model="ruleForm.password"></el-input>
         </el-form-item>
 
         <el-form-item>
@@ -22,15 +22,15 @@
         data() {
             return {
                 ruleForm: {
-                    name: '',
-                    author: ''
+                    username: '',
+                    password: ''
                 },
                 rules: {
-                    name: [
-                        { required: true, message: '图书名称不能为空', trigger: 'blur' }
+                    username: [
+                        { required: true, message: '用户名不能为空', trigger: 'blur' }
                     ],
-                    author:[
-                        { required: true, message: '作者不能为空', trigger: 'blur' }
+                    password:[
+                        { required: true, message: '密码不能为空', trigger: 'blur' }
                     ]
                 }
             };
@@ -40,12 +40,12 @@
                 const _this = this
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        axios.post('http://localhost:8181/book/save',this.ruleForm).then(function(resp){
+                        axios.post('http://localhost:8181/user/save',this.ruleForm).then(function(resp){
                             if(resp.data == 'success'){
-                                _this.$alert('《'+_this.ruleForm.name+'》添加成功！', '消息', {
+                                _this.$alert('《'+_this.ruleForm.username+'》添加成功！', '消息', {
                                     confirmButtonText: '确定',
                                     callback: action => {
-                                        _this.$router.push('/BookManage')
+                                        _this.$router.push('/UserManage')
                                     }
                                 })
                             }

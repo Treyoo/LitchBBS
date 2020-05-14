@@ -1,21 +1,18 @@
 # bbs_vue
 
-> Front end developed with vue.
+> Vue2.0前端项目，前后段分离.
 
-## Build Setup
+## 启动
+
+需安装好nodejs和vue环境和cnpm工具。
 
 ``` bash
 # install dependencies
-npm install
+cnpm install
 
-# serve with hot reload at localhost:8080
-npm run dev
+# serve with hot reload at localhost:9090
+cnpm run dev
 
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+启动完成后浏览器访问localhost:9090

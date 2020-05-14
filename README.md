@@ -1,13 +1,15 @@
 # LitchBBS
 
-网页论坛，使用SpringBoot,MyBatis,Thymeleaf
+网页论坛，使用SpringBoot,MyBatis,Thymeleaf,Quartz,Elastic search,caffeine,Vue2.0
 
-##开发环境依赖
+## 安装部署
 以下示例为Ubuntu系统下
+
 ### 安装MySql
 sudo apt-get install mysql-server
 1.设置root用户密码为root
 2.新建数据库bbs:mysql命令行执行CREATE DATABASE bbs;
+3.source命令从sql文件还原数据。
 
 ### 安装Redis
 sudo apt-get install redis-server
@@ -22,14 +24,23 @@ sudo apt-get install redis-server
 解压、启动
 先启动ZooKeeper:> bin/zookeeper-server-start.sh config/zookeeper.properties
 再启动Kafka-Server:> bin/kafka-server-start.sh config/server.properties
+若要关闭kafka，
+先执行bin/kafka-server-stop.sh
+再执行 bin/zookeeper-server-stop.sh
 
-###安装Elasticsearch v6.8.6
+### 安装Elasticsearch v6.8.6
 下载地址：https://www.elastic.co/cn/downloads/past-releases/elasticsearch-6-8-6
 解压，设置%es安装目录%/bin到环境变量
 编辑%es安装目录%/config/elasticsearch.yml文件，设置cluster.name='litchi-bbs'
 终端执行`elasticsearch`命令启动
 
+### maven打包
 
+项目根目录下执行
+`mvn clean package -Dmaven.test.skip=true`
+完毕到target/目录找到生成的ROOT.war
+
+将war包拷到tomacat目录下的webapps/目录即可。
 
 
 ## 开发遇到的一些问题
